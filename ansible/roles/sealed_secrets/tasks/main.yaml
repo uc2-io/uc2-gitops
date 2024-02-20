@@ -1,0 +1,8 @@
+- name: Deploy Sealed Secrets for Kubernetes
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/sealed-secrets.j2') }}"
+    state: present
+  delay: 10
+  retries: 10
+  tags:
+    - sealed-secrets

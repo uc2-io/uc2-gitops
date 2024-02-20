@@ -1,0 +1,13 @@
+.vscode
+ansible/collections/ansible_collections
+ansible/local
+charts/bootstrap/files/ssh/image-builder-ssh-private-key
+charts/bootstrap/files/ssh/image-builder-ssh-public-key
+charts/*/Chart.lock
+charts/*/charts
+charts/stack/*/Chart.lock
+charts/stack/*/charts
+containerdisks/*/*.qcow2
+examples/values/local
+local/
+
