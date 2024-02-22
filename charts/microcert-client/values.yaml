@@ -1,0 +1,8 @@
+---
+ansible-runner-job:
+  job_ansible_playbook: ansible/microcert-api-ingress.yaml
+  job_git_branch: main
+  job_name: microcert-client-job
+  job_serviceaccount: microcert     
+microcert_client_namespace: ansible-runner
+microcert_client_sa: microcert

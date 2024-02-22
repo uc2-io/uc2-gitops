@@ -1,0 +1,12 @@
+apiVersion: v2
+dependencies:
+  - name: ansible-runner-job
+    version: 0.1.0
+    repository: file://../ansible-runner-job
+  - name: common
+    version: 0.1.0
+    repository: file://../common
+description: Reconfigure API/Ingress TLS Certificates for OpenShift
+name: microcert-client
+type: application
+version: 0.1.0

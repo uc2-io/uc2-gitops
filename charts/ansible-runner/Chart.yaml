@@ -1,0 +1,15 @@
+apiVersion: v2
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../common
+  - name: namespace
+    version: 0.1.0
+    repository: file://../namespace
+  - name: rbac
+    version: 0.1.0
+    repository: file://../rbac
+description: Setup Ansible Runner
+name: ansible-runner
+type: application
+version: 0.1.0

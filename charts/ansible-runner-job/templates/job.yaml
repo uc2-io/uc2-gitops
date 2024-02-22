@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  {{- if $.Values.job_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.job_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    run: {{ $.Values.job_name }}
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.job_labels }}
+    {{- tpl (toYaml $.Values.job_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.job_name }}
+  namespace: {{ $.Values.job_namespace }}
+spec:
+  template:
+    spec:
+      activeDeadlineSeconds: {{ $.Values.job_active_deadline_seconds }}
+      containers:
+        - command:
+            - /bin/bash
+            - -c
+            - |
+              mkdir -p $GIT_LOCAL_DIRECTORY
+              git clone -b $GIT_BRANCH $GIT_URL $GIT_LOCAL_DIRECTORY
+              ansible-galaxy collection install -r $GIT_LOCAL_DIRECTORY/$ANSIBLE_COLLECTION_REQUIREMENTS
+              ansible-playbook $GIT_LOCAL_DIRECTORY/$ANSIBLE_PLAYBOOK
+          env:
+            - name: ANSIBLE_COLLECTION_REQUIREMENTS
+              value: "{{ $.Values.job_collection_requirements }}"
+            - name: ANSIBLE_CONFIG
+              value: "{{ $.Values.job_git_local_directory }}/{{ $.Values.job_ansible_config }}"
+            - name: ANSIBLE_PLAYBOOK
+              value: "{{ $.Values.job_ansible_playbook }}"
+            - name: GIT_BRANCH
+              value: "{{ $.Values.job_git_branch }}"
+            - name: GIT_LOCAL_DIRECTORY
+              value: "{{ $.Values.job_git_local_directory }}"
+            - name: GIT_URL
+              value: "{{ $.Values.job_git_url }}"
+          image: {{ $.Values.job_image }}
+          imagePullPolicy: Always
+          name: ansible-runner
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccount: {{ $.Values.job_serviceaccount }}
+      serviceAccountName: {{ $.Values.job_serviceaccount }}
+      terminationGracePeriodSeconds: 30
