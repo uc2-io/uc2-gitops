@@ -1,0 +1,11 @@
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+  name: cluster
+spec:
+  identityProviders:
+    {{- tpl (toYaml $.Values.oauth_idp_data) $ | nindent 4 }}

@@ -42,6 +42,12 @@ application-manager:
                 job_git_branch: initial-commit
                 job_name: microcert-client-job
                 job_namespace: ansible-runner
-                job_serviceaccount: microcert            
+                job_serviceaccount: microcert
+          # Ansible Runner Configuration
+          oauth:
+            annotations:
+              argocd.argoproj.io/sync-wave: "0"
+            name: oauth
+            path: charts/oauth
 bootstrap:
   raw: []

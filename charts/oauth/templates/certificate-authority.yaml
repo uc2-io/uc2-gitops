@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.oauth_ca_configmap_name }}
+  namespace: openshift-config
+data:
+  ca.crt: |
+{{ $.Values.oauth_ca_data | indent 4 }}
