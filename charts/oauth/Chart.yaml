@@ -3,6 +3,9 @@ dependencies:
   - name: common
     version: 0.1.0
     repository: file://../common
+  - name: rbac
+    version: 0.1.0
+    repository: file://../rbac
 description: Configure OpenShift oAuth Identity Provider
 name: oauth
 type: application

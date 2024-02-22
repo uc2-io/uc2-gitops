@@ -1,7 +1,7 @@
-{{- range .Values.sa }}
+{{- range .Values.groups }}
 ---
-apiVersion: v1
-kind: ServiceAccount
+apiVersion: user.openshift.io/v1
+kind: Group
 metadata:
 {{- if .annotations }}
   annotations:
@@ -13,5 +13,6 @@ metadata:
     {{- tpl (toYaml .labels) $ | nindent 4 }}
 {{- end }}
   name: {{ .name }}
-  namespace: {{ .namespace }}
+users:
+  {{- tpl (toYaml .users) $ | nindent 2 }}
 {{- end }}

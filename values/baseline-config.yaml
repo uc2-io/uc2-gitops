@@ -43,11 +43,25 @@ application-manager:
                 job_name: microcert-client-job
                 job_namespace: ansible-runner
                 job_serviceaccount: microcert
-          # Ansible Runner Configuration
+          # OpenShift OAuth Configuration
           oauth:
             annotations:
               argocd.argoproj.io/sync-wave: "0"
             name: oauth
             path: charts/oauth
+            values:
+              rbac:
+                groups:
+                  - name: cluster-admins
+                    users:
+                      - chris
+                      - juanjo
+                clusterrolebinding:
+                  - name: cluster-admins-group
+                    role: cluster-admin
+                    subjects:
+                      - apiGroup: rbac.authorization.k8s.io
+                        kind: Group
+                        name: cluster-admins
 bootstrap:
   raw: []
