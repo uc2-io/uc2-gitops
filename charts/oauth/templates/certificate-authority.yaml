@@ -1,6 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
   labels:
     {{- include "common.labels.labels" $ | nindent 4 }}
   name: {{ $.Values.oauth_ca_configmap_name }}
