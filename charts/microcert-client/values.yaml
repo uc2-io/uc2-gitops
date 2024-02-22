@@ -3,6 +3,14 @@ ansible-runner-job:
   job_ansible_playbook: ansible/microcert-api-ingress.yaml
   job_git_branch: main
   job_name: microcert-client-job
-  job_serviceaccount: microcert     
+  job_serviceaccount: microcert
+  job_volume_mounts:
+    - mountPath: "/etc/microcert/config"
+      name: microcert-token
+      readOnly: true
+  job_volumes:
+    - name: microcert-token
+      secret:
+        secretName: microcert-token
 microcert_client_namespace: ansible-runner
 microcert_client_sa: microcert

@@ -42,8 +42,16 @@ spec:
           image: {{ $.Values.job_image }}
           imagePullPolicy: Always
           name: ansible-runner
+          {{- if $.Values.job_volume_mounts }}
+          volumeMounts:
+            {{- tpl (toYaml $.Values.job_volume_mounts) $ | nindent 12 }}
+          {{- end }}
       dnsPolicy: ClusterFirst
       restartPolicy: OnFailure
       serviceAccount: {{ $.Values.job_serviceaccount }}
       serviceAccountName: {{ $.Values.job_serviceaccount }}
       terminationGracePeriodSeconds: 30
+      {{- if $.Values.job_volumes }}
+      volumes:
+        {{- tpl (toYaml $.Values.job_volumes) $ | nindent 8 }}
+      {{- end }}
