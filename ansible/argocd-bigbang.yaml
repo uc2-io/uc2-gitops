@@ -1,0 +1,6 @@
+- name: Deploy and Initialize Argo CD
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: bootstrap

@@ -23,4 +23,3 @@ YQ_RELEASE_LATEST=$(curl -sI $YQ_RELEASE_URL | sed -En 's/^location: .*\/(.*)/\1
 echo "Downloading release $YQ_RELEASE_LATEST to $YQ_INSTALL_PATH/yq..."
 curl -Lso $YQ_INSTALL_PATH/yq $YQ_DOWNLOAD_URL/$YQ_RELEASE_LATEST/$YQ_DOWNLOAD_FILE
 chmod +x $YQ_INSTALL_PATH/yq
-

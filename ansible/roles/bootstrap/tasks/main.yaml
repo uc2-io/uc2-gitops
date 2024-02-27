@@ -1,0 +1,62 @@
+- name: Read Helm Values File
+  ansible.builtin.set_fact:
+    helm_values_init: "{{ lookup('ansible.builtin.file', bootstrap_values_file) | from_yaml }}"
+
+- name: Set Target Namespace for OpenShift Gitops Deployment
+  ansible.builtin.set_fact:
+    bootstrap_release_namespace: "{{ helm_values_init | community.general.json_query(_query) | first }}"
+  vars:
+    _query: "config.env[?name==`ARGOCD_CLUSTER_CONFIG_NAMESPACES`].value"
+
+- name: Deploy OpenShift Gitops Operator
+  kubernetes.core.helm:
+    chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/operator"
+    release_name: "{{ bootstrap_operator_release_name }}"
+    release_namespace: "{{ bootstrap_operator_release_namespace }}"
+    values_files:
+      - "{{ role_path }}/{{ bootstrap_values_file }}"
+  register: results_helm_gitops_operator
+
+- name: Wait for argocds.argoproj.io CRD
+  kubernetes.core.k8s_info:
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: argocds.argoproj.io
+  delay: 5
+  register: crd_results
+  retries: 60
+  until:
+    - crd_results.resources is defined
+    - crd_results.resources | length == 1
+
+- name: Deploy Argo CD Using OpenShift Gitops Operator
+  kubernetes.core.helm:
+    chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/argocd"
+    create_namespace: true
+    release_name: "{{ bootstrap_argocd_release_name }}"
+    release_namespace: "{{ bootstrap_release_namespace }}"
+    values_files:
+      - "{{ role_path }}/{{ bootstrap_values_file }}"
+
+- name: Wait for Argo CD Deployment
+  kubernetes.core.k8s_info:
+    api_version: argoproj.io/v1beta1
+    kind: ArgoCD
+    namespace: "{{ bootstrap_release_namespace }}"
+  delay: 5
+  register: argocd_results
+  retries: 60
+  until:
+    - argocd_results.resources is defined
+    - argocd_results.resources | count == 1
+    - argocd_results.resources[0].status is defined
+    - argocd_results.resources[0].status.phase == "Available"
+    - argocd_results.resources[0].status.applicationController == "Running"
+
+- name: Deploy Baseline Configuration
+  kubernetes.core.helm:
+    chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/bootstrap"
+    release_name: bootstrap
+    release_namespace: "{{ bootstrap_release_namespace }}"
+    values_files:
+      - "{{ role_path }}/{{ bootstrap_baseline_values_file }}"

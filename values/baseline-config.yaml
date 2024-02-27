@@ -38,7 +38,7 @@ application-manager:
             path: charts/microcert-client
             values:
               ansible-runner-job:
-                job_ansible_playbook: ansible/microcert-api-ingress.yaml
+                job_ansible_playbook: ansible/job-microcert-client.yaml
                 job_git_branch: initial-commit
                 job_name: microcert-client-job
                 job_namespace: ansible-runner
