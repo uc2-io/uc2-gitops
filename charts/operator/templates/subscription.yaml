@@ -1,17 +1,25 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
+{{- if .Values.operator.annotations }}
+  annotations:
+    {{- toYaml .Values.operator.annotations | nindent 4 }}
+{{- end }}
   labels:
     {{- include "common.labels.labels" . | nindent 4 }}
+{{- if .Values.operator.labels }}
+  annotations:
+    {{- toYaml .Values.operator.labels | nindent 4 }}
+{{- end }}
   name: {{ template "common.names.fullname" . }}
   namespace: {{ template "common.names.namespace" $ }}
 spec:
-  channel: {{ required "Operator channel is required!" .Values.operator.channel }}
+  channel: {{ .Values.operator.channel }}
 {{- if .Values.config }}
   config:
   {{- tpl (toYaml .Values.config) $ | nindent 4 }}
 {{- end }}
   installPlanApproval: {{ .Values.operator.installPlanApproval }}
-  name: {{ required "Operator name is required!" .Values.operator.name }}
-  source: {{ required "Operator source is required!" .Values.operator.source }}
-  sourceNamespace: {{ required "Operator source namespace is required!" .Values.operator.sourceNamespace }}
+  name: {{ .Values.operator.name }}
+  source: {{ .Values.operator.source }}
+  sourceNamespace: {{ .Values.operator.sourceNamespace }}
