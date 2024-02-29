@@ -6,6 +6,7 @@ dependencies:
   - condition: namespace.enabled,global.namespace.enabled
     name: namespace
     repository: file://../namespace
+    version: 0.1.0
 description: Generic Operator Chart
 name: operator
 type: application
