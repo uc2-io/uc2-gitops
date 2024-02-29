@@ -1,4 +1,6 @@
 ---
+namespaces:
+  enabled: false
 operator:
   channel: ""
   installPlanApproval: Automatic

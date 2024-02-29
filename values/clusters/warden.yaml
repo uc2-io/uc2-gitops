@@ -1,93 +1,113 @@
 ---
 # Dynamically Generated Charts
-application-manager:
-  common:
-    repoURL: https://github.com/uc2-io/uc2-gitops.git
-    targetRevision: initial-commit
-    namespace: uc2-openshift-gitops
-    project: stack-apps
-    destinationNamespace: uc2-openshift-gitops
-    prune: true
-    selfHeal: true
-  charts:
-    # Additional Cluster Configuration Outside of Management Stack
-    stack-apps:
-      name: stack-apps
-      path: charts/application-manager
-      values:
-        common:
-          destinationNamespace: uc2-openshift-gitops
-          namespace: uc2-openshift-gitops
-          project: stack-apps
-          prune: true
-          repoURL: https://github.com/uc2-io/uc2-gitops.git
-          selfHeal: true
-          targetRevision: initial-commit
-        charts:
-          # Deploy Operators
-          stack-operators:
-            name: stack-operators
-            path: charts/application-manager
-            values:
-              common:
-                repoURL: https://github.com/nasx/uc2-gitops.git
-                targetRevision: main
-                namespace: uc2-openshift-gitops
-                project: stack-apps
-                destinationNamespace: uc2-openshift-gitops
-                prune: true
-                selfHeal: true
-              charts:
-                # Operator List
-                odf-operator:
-                  name: odf-operator
-                  path: charts/operator
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "1"
-                  destinationNamespace: openshift-storage
-                  values:
-                    operator:
-                      channel: stable-4.14
-                      installPlanApproval: Automatic
-                      name: odf-operator
-                      source: redhat-operators
-                      sourceNamespace: openshift-marketplace
-                    operatorgroup:
-                      clusterScope: false
-                      create: true
-                local-storage-operator:
-                  name: local-storage-operator
-                  path: charts/operator
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "1"
-                  destinationNamespace: openshift-local-storage
-                  values:
-                    operator:
-                      channel: stable
-                      installPlanApproval: Automatic
-                      name: local-storage-operator
-                      source: redhat-operators
-                      sourceNamespace: openshift-marketplace
-                    operatorgroup:
-                      clusterScope: false
-                      create: true
-                # Deploy Local Volume Set for Data Foundation (OSD)
-                odf-lvs-osd:
-                  name: odf-lvs-osd
-                  path: charts/stack/odf-lvs
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "2"
-                  destinationNamespace: openshift-local-storage
-                  values:
-                    lvs_storageclass: odf-osd-localvolumeset
-                # Deploy OpenShift Data Foundation
-                odf:
-                  name: odf
-                  path: charts/stack/odf
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "3"
-                  destinationNamespace: openshift-storage
-                  values:
-                    storagecluster_storage: 500Gi
-                    storagecluster_storageclass: odf-osd-localvolumeset
-                    storagecluster_use_localstorage: "true"
+common:
+  repoURL: https://github.com/uc2-io/uc2-gitops.git
+  targetRevision: initial-commit
+  namespace: uc2-openshift-gitops
+  project: stack-apps
+  destinationNamespace: uc2-openshift-gitops
+  prune: true
+  selfHeal: true
+charts:
+  # Additional Cluster Configuration Outside of Management Stack
+  stack-apps:
+    name: stack-apps
+    path: charts/application-manager
+    values:
+      common:
+        destinationNamespace: uc2-openshift-gitops
+        namespace: uc2-openshift-gitops
+        project: stack-apps
+        prune: true
+        repoURL: https://github.com/uc2-io/uc2-gitops.git
+        selfHeal: true
+        targetRevision: initial-commit
+      charts:
+        # Deploy Operators
+        stack-operators:
+          name: stack-operators
+          path: charts/application-manager
+          values:
+            common:
+              repoURL: https://github.com/nasx/uc2-gitops.git
+              targetRevision: main
+              namespace: uc2-openshift-gitops
+              project: stack-apps
+              destinationNamespace: uc2-openshift-gitops
+              prune: true
+              selfHeal: true
+            charts:
+              # Operator List
+              odf-operator:
+                name: odf-operator
+                path: charts/operator
+                annotations:
+                  argocd.argoproj.io/sync-wave: "1"
+                destinationNamespace: openshift-storage
+                values:
+                  namespace:
+                    enabled: true
+                    namespaces:
+                      - name: openshift-storage
+                  operator:
+                    channel: stable-4.14
+                    installPlanApproval: Automatic
+                    name: odf-operator
+                    source: redhat-operators
+                    sourceNamespace: openshift-marketplace
+                  operatorgroup:
+                    clusterScope: false
+                    create: true
+              local-storage-operator:
+                name: local-storage-operator
+                path: charts/operator
+                annotations:
+                  argocd.argoproj.io/sync-wave: "1"
+                destinationNamespace: openshift-local-storage
+                values:
+                  namespace:
+                    enabled: true
+                    namespaces:
+                      - name: openshift-local-storage
+                  operator:
+                    channel: stable
+                    installPlanApproval: Automatic
+                    name: local-storage-operator
+                    source: redhat-operators
+                    sourceNamespace: openshift-marketplace
+                  operatorgroup:
+                    clusterScope: false
+                    create: true
+        stack-odf:
+          name: stack-odf
+          path: charts/application-manager
+          values:
+            common:
+              repoURL: https://github.com/nasx/uc2-gitops.git
+              targetRevision: main
+              namespace: uc2-openshift-gitops
+              project: stack-apps
+              destinationNamespace: uc2-openshift-gitops
+              prune: true
+              selfHeal: true
+            charts:
+              # Deploy Local Volume Set for OpenShift Data Foundation (OSD)
+              odf-lvs-osd:
+                name: odf-lvs-osd
+                path: charts/stack/odf-lvs
+                annotations:
+                  argocd.argoproj.io/sync-wave: "2"
+                destinationNamespace: openshift-local-storage
+                values:
+                  lvs_storageclass: odf-osd-localvolumeset
+              # Deploy OpenShift Data Foundation
+              odf:
+                name: odf
+                path: charts/stack/odf
+                annotations:
+                  argocd.argoproj.io/sync-wave: "3"
+                destinationNamespace: openshift-storage
+                values:
+                  storagecluster_storage: 500Gi
+                  storagecluster_storageclass: odf-osd-localvolumeset
+                  storagecluster_use_localstorage: "true"
