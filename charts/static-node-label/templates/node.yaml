@@ -1,0 +1,10 @@
+{{- range $.Values.nodes }}
+---
+apiVersion: v1
+kind: Node
+metadata:
+  labels:
+    {{- tpl (toYaml .labels) $ | nindent 4 }}
+  name: {{ .name }}
+spec: {}
+{{- end }}
