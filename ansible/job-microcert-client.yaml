@@ -62,7 +62,7 @@
             headers:
               Token: "{{ token }}"
             method: POST
-            url: https://microcert.apps.alice.lab.uc2.io/api/certificate
+            url: https://microcert.lab.uc2.io/api/certificate
           register: microcert_results
           with_items:
             - "{{ api_dns }}"
