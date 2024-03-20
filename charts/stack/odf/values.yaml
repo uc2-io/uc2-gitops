@@ -6,6 +6,7 @@ storagecluster_annotations:
   uninstall.ocs.openshift.io/cleanup-policy: delete
   uninstall.ocs.openshift.io/mode: graceful
 storagecluster_enablecephtools: true
+storagecluster_enabledefaultstorageclass: true
 storagecluster_mon_storage: 50Gi
 storagecluster_mon_storageclass: thin-csi
 storagecluster_mgr_enableactivepassive: true
@@ -13,4 +14,5 @@ storagecluster_name: odf-storagecluster
 storagecluster_namespace: openshift-storage
 storagecluster_storage: 2Ti
 storagecluster_storageclass: thin-csi
-storagecluster_use_localstorage: "false"
+storagecluster_use_localstorage: false
+storagecluster_version: "4.15.0"
