@@ -17,6 +17,24 @@ rbac:
     - name: ansible-runner-cr
       rules:
         - apiGroups:
+            - local.storage.openshift.io
+          resources:
+            - localvolumesets
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
+            - ""
+            - storage.k8s.io
+          resources:
+            - persistentvolumes
+            - storageclass
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
             - "*"
           resources:
             - clusterroles

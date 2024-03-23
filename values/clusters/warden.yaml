@@ -9,7 +9,7 @@ common:
   prune: true
   selfHeal: true
 charts:
-  # Additional Cluster Configuration Outside of Management Stack
+  # Cluster Specific Configuration
   stack-apps:
     name: stack-apps
     path: charts/application-manager
@@ -23,6 +23,47 @@ charts:
         selfHeal: true
         targetRevision: initial-commit
       charts:
+        # Configure Static Node Labels
+        static-node-labels:
+          name: static-node-labels
+          path: charts/static-node-label
+          annotations:
+            argocd.argoproj.io/sync-wave: "-1"
+          #destinationNamespace: openshift-storage
+          syncOptions:
+            - ServerSideApply=true
+          values:
+            nodes:
+              - name: in0.warden.lab.uc2.io
+                labels:
+                  cluster.ocs.openshift.io/openshift-storage: ""
+              - name: in1.warden.lab.uc2.io
+                labels:
+                  cluster.ocs.openshift.io/openshift-storage: ""
+              - name: in2.warden.lab.uc2.io
+                labels:
+                  cluster.ocs.openshift.io/openshift-storage: ""
+        # Deploy OpenShift Virtualization Operator
+        cnv-operator:
+          name: cnv-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-cnv
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: openshift-cnv
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: kubevirt-hyperconverged
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: false
+              create: true
         # Deploy ODF Operator
         odf-operator:
           name: odf-operator
@@ -36,7 +77,7 @@ charts:
               namespaces:
                 - name: openshift-storage
             operator:
-              channel: stable-4.14
+              channel: stable-4.15
               installPlanApproval: Automatic
               name: odf-operator
               source: redhat-operators
@@ -73,6 +114,14 @@ charts:
             argocd.argoproj.io/sync-wave: "2"
           destinationNamespace: openshift-local-storage
           values:
+            lvs_nodeselectorterms:
+              - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                  - in0.warden.lab.uc2.io
+                  - in1.warden.lab.uc2.io
+                  - in2.warden.lab.uc2.io
             lvs_storageclass: odf-osd-localvolumeset
         # Deploy OpenShift Data Foundation
         odf-storagecluster:
@@ -82,6 +131,16 @@ charts:
             argocd.argoproj.io/sync-wave: "3"
           destinationNamespace: openshift-storage
           values:
+            ansible-runner-job:
+              enabled: true
+              job_annotations:
+                argocd.argoproj.io/hook: PreSync
+                argocd.argoproj.io/hook-delete-policy: HookSucceeded
+              job_ansible_extravars_json: >-
+                {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
+              job_ansible_playbook: ansible/job-prehook-validate-lvs.yaml
+              job_git_branch: initial-commit
+              job_name: prehook-validate-lvs
             storagecluster_storage: 500Gi
             storagecluster_storageclass: odf-osd-localvolumeset
-            storagecluster_use_localstorage: "true"
+            storagecluster_use_localstorage: true

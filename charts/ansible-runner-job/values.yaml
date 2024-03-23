@@ -1,10 +1,10 @@
 ---
 job_active_deadline_seconds: 600
 job_ansible_config: ansible/ansible.cfg
+job_collection_requirements: ansible/collections/requirements.yaml
 job_git_branch: main
 job_git_local_directory: /tmp/git/uc2-gitops
 job_git_url: https://github.com/uc2-io/uc2-gitops.git
 job_image: quay.io/nasx/gitops-ansible-runner:latest
 job_namespace: ansible-runner
-job_collection_requirements: ansible/collections/requirements.yaml
 job_serviceaccount: ansible-runner-sa

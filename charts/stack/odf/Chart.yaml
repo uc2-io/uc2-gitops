@@ -1,5 +1,9 @@
 apiVersion: v2
 dependencies:
+  - name: ansible-runner-job
+    version: 0.1.0
+    repository: file://../../ansible-runner-job
+    condition: ansible-runner-job.enabled
   - name: common
     repository: file://../../common
     version: 0.1.0

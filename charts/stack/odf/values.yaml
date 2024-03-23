@@ -1,4 +1,6 @@
 ---
+ansible-runner-job:
+  enabled: false
 storagecluster_annotations:
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   argocd.argoproj.io/sync-wave: "2"

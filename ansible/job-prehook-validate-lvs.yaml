@@ -1,0 +1,66 @@
+- name: Validate LocalVolumeSet Resource
+  become: false
+  gather_facts: false
+  hosts: localhost
+  module_defaults:
+    kubernetes.core.k8s_info:
+      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      host: https://kubernetes.default.svc
+    kubernetes.core.k8s:
+      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      host: https://kubernetes.default.svc
+  tasks:
+    - name: Assert Extravars
+      ansible.builtin.assert:
+        that:
+          - lvs_expected_pv_count is defined
+          - lvs_name is defined
+          - lvs_namespace is defined
+          - lvs_storageclass is defined
+
+    - name: Query LocalVolumeSet
+      kubernetes.core.k8s_info:
+        api_version: local.storage.openshift.io/v1alpha1
+        kind: LocalVolumeSet
+        name: "{{ lvs_name }}"
+        namespace: "{{ lvs_namespace }}"
+      delay: 10
+      retries: 60
+      register: lvs_results
+      until:
+        - lvs_results.resources | count == 1
+        - lvs_results.resources[0].status is defined
+        - lvs_results.resources[0].status.conditions is defined
+        - lvs_results.resources[0].status.conditions | count == 2
+        - lvs_results.resources[0].status.totalProvisionedDeviceCount is defined
+        - (lvs_results.resources[0].status.conditions | json_query(_query_daemonset) | first).status == "True"
+        - (lvs_results.resources[0].status.conditions | json_query(_query_available) | first).status == "True"
+        - lvs_results.resources[0].status.totalProvisionedDeviceCount ==  lvs_expected_pv_count
+      vars:
+        _query_daemonset: "[?type=='DaemonSetsAvailable']"
+        _query_available: "[?type=='Available']"
+
+    - name: Query StorageClass
+      kubernetes.core.k8s_info:
+        api_version: storage.k8s.io/v1
+        kind: StorageClass
+        name: "{{ lvs_storageclass }}"
+      delay: 10
+      retries: 60
+      register: sc_results
+      until:
+        - sc_results.resources | count == 1
+
+    - name: Query PersistentVolumes
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: PersistentVolume
+        label_selectors:
+          - "storage.openshift.com/owner-name = {{ lvs_name }}"
+      delay: 10
+      retries: 60
+      register: pv_results
+      until:
+        - pv_results.resources | count == lvs_expected_pv_count
