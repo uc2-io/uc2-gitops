@@ -1,0 +1,11 @@
+apiVersion: odf.openshift.io/v1alpha1
+kind: StorageSystem
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.storagesystem_name }}
+  namespace: {{ $.Values.storagecluster_namespace }}
+spec:
+  kind: storagecluster.ocs.openshift.io/v1
+  name: {{ $.Values.storagecluster_name }}
+  namespace: {{ $.Values.storagecluster_namespace }}

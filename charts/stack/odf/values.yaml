@@ -2,8 +2,6 @@
 ansible-runner-job:
   enabled: false
 storagecluster_annotations:
-  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-  argocd.argoproj.io/sync-wave: "2"
   cluster.ocs.openshift.io/local-devices: "true"
   uninstall.ocs.openshift.io/cleanup-policy: delete
   uninstall.ocs.openshift.io/mode: graceful
@@ -18,3 +16,4 @@ storagecluster_storage: 2Ti
 storagecluster_storageclass: thin-csi
 storagecluster_use_localstorage: false
 storagecluster_version: "4.15.0"
+storagesystem_name: odf-storagecluster-storagesystem
