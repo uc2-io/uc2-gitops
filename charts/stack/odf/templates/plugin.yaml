@@ -1,0 +1,9 @@
+apiVersion: operator.openshift.io/v1
+kind: Console
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+  name: cluster
+spec:
+  plugins:
+    - odf-console
