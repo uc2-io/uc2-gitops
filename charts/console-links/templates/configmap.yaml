@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+data:
+  console_links: >-
+    {{ tpl (toJson $.Values.consolelinks_links) $ }}
+kind: ConfigMap
+metadata:
+  {{- if .annotations }}
+  annotations:
+    {{- tpl (toYaml .annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if .labels }}
+    {{- tpl (toYaml .labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.consolelinks_configmap_name }}
+  namespace: {{ $.Values.consolelinks_configmap_namespace}}

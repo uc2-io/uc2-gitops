@@ -1,0 +1,6 @@
+- name: Configure OpenShift Console Links
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: openshift_console_links
