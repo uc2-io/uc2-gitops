@@ -17,6 +17,16 @@ rbac:
     - name: ansible-runner-cr
       rules:
         - apiGroups:
+            - operator.openshift.io
+          resources:
+            - consoles
+          verbs:
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
             - local.storage.openshift.io
           resources:
             - localvolumesets

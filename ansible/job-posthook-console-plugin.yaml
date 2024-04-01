@@ -1,0 +1,6 @@
+- name: Enable OpenShift Console Plugin
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: openshift_console_plugins
