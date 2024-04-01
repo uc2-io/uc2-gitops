@@ -1,0 +1,44 @@
+---
+ansible-runner-job:
+  enabled: true
+  jobs:
+    - annotations:
+        argocd.argoproj.io/hook: PreSync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+      ansible_extravars_json: >-
+        {"mch_namespace":"open-cluster-management","mch_pull_secret_name":"pull-secret"}
+      ansible_playbook: ansible/job-prehook-mch-pull-secret.yaml
+      git_branch: initial-commit
+      name: prehook-mch-pull-secret
+    # - annotations:
+    #     argocd.argoproj.io/hook: PostSync
+    #     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    #   ansible_extravars_json: >-
+    #     <changeme>
+    #   ansible_playbook: ansible/job-posthook-mco-deploy.yaml
+    #   git_branch: initial-commit
+    #   name: posthook-mco-deploy
+
+namespace:
+  enabled: true
+  namespaces:
+    - open-cluster-management-observability
+
+# Values for MultiClusterHub (MCH) and MultiClusterObservability (MCO)
+mch_availability_config: High
+mch_enable_cluster_backup: false
+mch_name: multiclusterhub
+mch_namespace: open-cluster-management
+mch_pull_secret_name: pull-secret
+mch_separate_certificate_management: false
+mco_alert_manager_storage_size: 10Gi
+mco_compact_storage_size: 10Gi
+mco_name: observability
+mco_namespace: open-cluster-management-observability
+mco_obc_name: acm-observability-obc
+mco_obc_namespace: open-cluster-management-observability
+mco_pull_secret_name: pull-secret
+mco_receive_storage_size: 10Gi
+mco_rules_storage_size: 10Gi
+mco_storage_class: thin-csi
+mco_store_storage_size: 10Gi

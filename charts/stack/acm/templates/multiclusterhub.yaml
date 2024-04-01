@@ -1,0 +1,46 @@
+apiVersion: operator.open-cluster-management.io/v1
+kind: MultiClusterHub
+metadata:
+  {{- if $.Values.mch_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.mch_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.mch_labels }}
+    {{- tpl (toYaml $.Values.mch_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.mch_name }}
+  namespace: {{ $.Values.mch_namespace }}
+spec:
+  availabilityConfig: {{ $.Values.mch_availability_config }}
+  enableClusterBackup: {{ $.Values.mch_enable_cluster_backup }}
+  imagePullSecret: {{ $.Values.mch_pull_secret_name }}
+  ingress: {}
+  overrides:
+    components:
+      - enabled: true
+        name: app-lifecycle
+      - enabled: true
+        name: cluster-lifecycle
+      - enabled: true
+        name: cluster-permission
+      - enabled: true
+        name: console
+      - enabled: true
+        name: grc
+      - enabled: true
+        name: insights
+      - enabled: true
+        name: multicluster-engine
+      - enabled: true
+        name: multicluster-observability
+      - enabled: true
+        name: search
+      - enabled: true
+        name: submariner-addon
+      - enabled: true
+        name: volsync
+      - enabled: false
+        name: cluster-backup
+  separateCertificateManagement: {{ $.Values.mch_separate_certificate_management }}

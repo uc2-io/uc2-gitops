@@ -1,0 +1,17 @@
+apiVersion: v2
+dependencies:
+  - condition: ansible-runner-job.enabled
+    name: ansible-runner-job
+    repository: file://../../ansible-runner-job
+    version: 0.1.0
+  - name: common
+    version: 0.1.0
+    repository: file://../common
+  - condition: namespace.enabled,global.namespace.enabled
+    name: namespace
+    repository: file://../namespace
+    version: 0.1.0
+description: Chart to Deploy Red Hat Advanced Cluster Management
+name: acm
+type: application
+version: 0.1.0
