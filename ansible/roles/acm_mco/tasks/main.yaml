@@ -82,6 +82,6 @@
   kubernetes.core.k8s:
     api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
     ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    resource_definition: "{{ lookup('template', 'templates/multiclusterobservability.j2') | from_yaml }}"
+    resource_definition: "{{ lookup('template', 'templates/mco.j2') | from_yaml }}"
     host: https://kubernetes.default.svc
     state: present
