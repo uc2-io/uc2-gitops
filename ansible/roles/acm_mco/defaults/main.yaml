@@ -1,0 +1,12 @@
+mco_alert_manager_storage_size: 10Gi
+mco_compact_storage_size: 10Gi
+mco_name: observability
+mco_namespace: open-cluster-management-observability
+mco_obc_name: acm-observability-obc
+mco_obc_namespace: open-cluster-management-observability
+mco_pull_secret_name: pull-secret
+mco_receive_storage_size: 10Gi
+mco_rules_storage_size: 10Gi
+mco_storage_class: thin-csi
+mco_store_storage_size: 10Gi
+mco_thanos_secret_name: thanos-object-storage

@@ -1,0 +1,17 @@
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  {{- if $.Values.mco_obc_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.mco_obc_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.mco_obc_labels }}
+    {{- tpl (toYaml $.Values.mco_obc_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.mco_obc_name }}
+  namespace: {{ $.Values.mco_obc_namespace }}
+spec:
+  generateBucketName: {{ $.Values.mco_obc_generate_bucket_name }}
+  storageClassName: openshift-storage.noobaa.io

@@ -1,0 +1,87 @@
+- name: Make Sure Variables are Defined
+  ansible.builtin.assert:
+    that:
+      - mco_alert_manager_storage_size is defined
+      - mco_compact_storage_size is defined
+      - mco_name is defined
+      - mco_namespace is defined
+      - mco_obc_name is defined
+      - mco_obc_namespace is defined
+      - mco_pull_secret_name is defined
+      - mco_receive_storage_size is defined
+      - mco_rules_storage_size is defined
+      - mco_storage_class is defined
+      - mco_store_storage_size is defined
+      - mco_thanos_secret_name is defined
+
+- name: Wait for ACM Observability OBC
+  kubernetes.core.k8s_info:
+    api_version: objectbucket.io/v1alpha1
+    kind: ObjectBucketClaim
+    name: "{{ mco_obc_name }}"
+    namespace: "{{ mco_obc_namespace }}"
+  delay: 10
+  register: obc
+  retries: 60
+  until:
+    - obc.resources[0].status.phase == "Bound"
+
+- name: Query Cluster Pull Secret
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: pull-secret
+    namespace: openshift-config
+  register: cluster_pull_secret
+
+- name: Debug cluster_pull_secret
+  ansible.builtin.debug:
+    var: cluster_pull_secret
+
+- name: Create Pull Secret for MultiClusterObservability
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: v1
+      data:
+        .dockerconfigjson: "{{ cluster_pull_secret.resources[0].data['.dockerconfigjson'] }}"
+      kind: Secret
+      metadata:
+        name: "{{ mco_pull_secret_name }}"
+        namespace: "{{ mco_namespace }}"
+      type: kubernetes.io/dockerconfigjson
+    state: present
+
+- name: Query ACM Observability OBC ConfigMap
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ mco_obc_name }}"
+    namespace: "{{ mco_obc_namespace }}"
+  register: obc_config_map
+
+- name: Query ACM Observability OBC Secret
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Secret
+    name: "{{ mco_obc_name }}"
+    namespace: "{{ mco_obc_namespace }}"
+  register: obc_secret
+
+- name: Create ACM Observability Thanos Config
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    resource_definition: "{{ lookup('template', 'templates/thanos-secret.j2') | from_yaml }}"
+    host: https://kubernetes.default.svc
+    state: present
+
+- name: Create ACM Observability
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    resource_definition: "{{ lookup('template', 'templates/multiclusterobservability.j2') | from_yaml }}"
+    host: https://kubernetes.default.svc
+    state: present

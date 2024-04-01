@@ -1,0 +1,6 @@
+- name: Deploy Advanced Cluster Management Observability (MCO)
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: acm_mco

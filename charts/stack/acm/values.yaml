@@ -10,14 +10,14 @@ ansible-runner-job:
       ansible_playbook: ansible/job-prehook-mch-pull-secret.yaml
       git_branch: initial-commit
       name: prehook-mch-pull-secret
-    # - annotations:
-    #     argocd.argoproj.io/hook: PostSync
-    #     argocd.argoproj.io/hook-delete-policy: HookSucceeded
-    #   ansible_extravars_json: >-
-    #     <changeme>
-    #   ansible_playbook: ansible/job-posthook-mco-deploy.yaml
-    #   git_branch: initial-commit
-    #   name: posthook-mco-deploy
+    - annotations:
+        argocd.argoproj.io/hook: PostSync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+      ansible_extravars_json: >-
+        {"mco_storage_class":"odf-storagecluster-ceph-rbd"}
+      ansible_playbook: ansible/job-posthook-mco-deploy.yaml
+      git_branch: initial-commit
+      name: posthook-mco-deploy
 
 namespace:
   enabled: true
