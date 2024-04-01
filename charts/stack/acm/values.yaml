@@ -22,7 +22,7 @@ ansible-runner-job:
 namespace:
   enabled: true
   namespaces:
-    - open-cluster-management-observability
+    - name: open-cluster-management-observability
 
 # Values for MultiClusterHub (MCH) and MultiClusterObservability (MCO)
 mch_availability_config: High
