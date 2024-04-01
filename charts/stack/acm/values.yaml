@@ -35,6 +35,7 @@ mco_alert_manager_storage_size: 10Gi
 mco_compact_storage_size: 10Gi
 mco_name: observability
 mco_namespace: open-cluster-management-observability
+mco_obc_generate_bucket_name: acm-observability
 mco_obc_name: acm-observability-obc
 mco_obc_namespace: open-cluster-management-observability
 mco_pull_secret_name: pull-secret
