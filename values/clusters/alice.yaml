@@ -29,41 +29,122 @@ charts:
           path: charts/static-node-label
           annotations:
             argocd.argoproj.io/sync-wave: "-1"
-          #destinationNamespace: openshift-storage
           syncOptions:
             - ServerSideApply=true
           values:
             nodes:
-              - name: in0.warden.lab.uc2.io
+              - name: odf0.alice.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
-              - name: in1.warden.lab.uc2.io
+              - name: odf1.alice.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
-              - name: in2.warden.lab.uc2.io
+              - name: odf2.alice.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
-        # Deploy OpenShift Virtualization Operator
-        cnv-operator:
-          name: cnv-operator
+        # Deploy Quay Operator
+        quay-operator:
+          name: quay-operator
           path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
-          destinationNamespace: openshift-cnv
+          destinationNamespace: openshift-operators
           values:
             namespace:
               enabled: true
               namespaces:
-                - name: openshift-cnv
+                - name: quay-enterprise
             operator:
-              channel: stable
+              channel: stable-3.11
               installPlanApproval: Automatic
-              name: kubevirt-hyperconverged
+              name: quay-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: false
+        # Deploy Ansible Automation Platform Operator
+        aap-operator:
+          name: aap-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: aap
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: aap
+            operator:
+              channel: stable-2.4-cluster-scoped
+              installPlanApproval: Automatic
+              name: ansible-automation-platform-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: true
+        # Deploy Advanced Cluster Management Operator
+        acm-operator:
+          name: acm-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: open-cluster-management
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - labels:
+                    openshift.io/cluster-monitoring: "true"
+                  name: open-cluster-management
+            operator:
+              channel: release-2.10
+              installPlanApproval: Automatic
+              name: advanced-cluster-management
               source: redhat-operators
               sourceNamespace: openshift-marketplace
             operatorgroup:
               clusterScope: false
               create: true
+        # Deploy Advanced Cluster Security Operator
+        acs-operator:
+          name: acs-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: rhacs-operator
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: rhacs-operator
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: rhacs-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: true
+        # Deploy ODF Multicluster Orchestrator Operator
+        odf-multicluster-orchestrator-operator:
+          name: odf-multicluster-orchestrator-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-operators
+          values:
+            operator:
+              channel: stable-4.15
+              installPlanApproval: Automatic
+              name: odf-multicluster-orchestrator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: false
         # Deploy ODF Operator
         odf-operator:
           name: odf-operator
@@ -123,9 +204,9 @@ charts:
                 - key: kubernetes.io/hostname
                   operator: In
                   values:
-                  - in0.warden.lab.uc2.io
-                  - in1.warden.lab.uc2.io
-                  - in2.warden.lab.uc2.io
+                  - odf0.alice.lab.uc2.io
+                  - odf1.alice.lab.uc2.io
+                  - odf2.alice.lab.uc2.io
             lvs_storageclass: odf-osd-localvolumeset
         # Deploy OpenShift Data Foundation
         odf-storagecluster:
@@ -154,6 +235,14 @@ charts:
                   ansible_playbook: ansible/job-posthook-console-plugin.yaml
                   git_branch: initial-commit
                   name: posthook-odf-console-plugin
+            storagecluster_enabledefaultstorageclass: false
             storagecluster_storage: 500Gi
             storagecluster_storageclass: odf-osd-localvolumeset
             storagecluster_use_localstorage: true
+        # Deploy OpenShift Advanced Cluster Management
+        acm:
+          name: acm
+          path: charts/stack/acm
+          annotations:
+            argocd.argoproj.io/sync-wave: "4"
+          destinationNamespace: open-cluster-management
