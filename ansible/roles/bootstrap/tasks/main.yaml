@@ -24,7 +24,7 @@
     name: argocds.argoproj.io
   delay: 5
   register: crd_results
-  retries: 60
+  retries: 120
   until:
     - crd_results.resources is defined
     - crd_results.resources | length == 1
@@ -45,7 +45,7 @@
     namespace: "{{ bootstrap_release_namespace }}"
   delay: 5
   register: argocd_results
-  retries: 60
+  retries: 120
   until:
     - argocd_results.resources is defined
     - argocd_results.resources | count == 1

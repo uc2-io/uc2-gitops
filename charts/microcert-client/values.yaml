@@ -1,16 +1,20 @@
 ---
 ansible-runner-job:
-  job_ansible_playbook: ansible/job-microcert-client.yaml
-  job_git_branch: main
-  job_name: microcert-client-job
-  job_serviceaccount: microcert
-  job_volume_mounts:
-    - mountPath: "/etc/microcert/config"
-      name: microcert-token
-      readOnly: true
-  job_volumes:
-    - name: microcert-token
-      secret:
-        secretName: microcert-token
+  jobs:
+    - annotations:
+        argocd.argoproj.io/hook: PostSync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+      ansible_playbook: ansible/job-posthook-microcert-client.yaml
+      git_branch: initial-commit
+      name: posthook-microcert-client
+      serviceaccount: microcert
+      volume_mounts:
+        - mountPath: "/etc/microcert/config"
+          name: microcert-token
+          readOnly: true
+      volumes:
+        - name: microcert-token
+          secret:
+            secretName: microcert-token
 microcert_client_namespace: ansible-runner
 microcert_client_sa: microcert
