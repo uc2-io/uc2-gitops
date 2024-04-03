@@ -80,6 +80,26 @@ spec:
       kinds:
       - PipelineRun
   resourceHealthChecks:
+    - group: quay.redhat.com
+      kind: QuayRegistry
+      check: |
+        hs = {}
+        if obj.status ~= nil then
+          if obj.status.conditions ~= nil then
+            for _, condition in ipairs(obj.status.conditions) do
+              if condition.type == "HealthChecksPassing" then
+                if condition.status == "True" then
+                  hs.message = condition.message
+                  hs.status = "Healthy"
+                  return hs
+                end
+              end
+            end
+          end
+        end
+        hs.status = "Progressing"
+        hs.message = "Waiting for condition HealthChecksPassing"
+        return hs
     - group: operator.open-cluster-management.io
       kind: MultiClusterHub
       check: |
