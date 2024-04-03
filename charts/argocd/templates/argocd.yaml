@@ -86,9 +86,8 @@ spec:
         hs = {}
         if obj.status ~= nil then
           if obj.status.conditions ~= nil then
-            for _, condition in ipairs(obj.status.conditions) do
-              if condition.type == "HealthChecksPassing" then
-                if condition.status == "True" then
+            for i, condition in ipairs(obj.status.conditions) do
+              if condition.type == "Available" and condition.status == "True" then
                   hs.message = condition.message
                   hs.status = "Healthy"
                   return hs
@@ -97,8 +96,8 @@ spec:
             end
           end
         end
+        hs.message = "Waiting for condition Available"
         hs.status = "Progressing"
-        hs.message = "Waiting for condition HealthChecksPassing"
         return hs
     - group: operator.open-cluster-management.io
       kind: MultiClusterHub
