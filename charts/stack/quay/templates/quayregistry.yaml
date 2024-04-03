@@ -1,0 +1,11 @@
+apiVersion: quay.redhat.com/v1
+kind: QuayRegistry
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.quay_registry_name }}
+  namespace: {{ $.Values.quay_namespace }}
+spec:
+  components:
+    {{- tpl (toYaml $.Values.quay_registry_components) $ | nindent 4 }}
+  configBundleSecret: {{ $.Values.quay_init_bundle_name }}

@@ -1,0 +1,40 @@
+---
+quay_init_bundle_data: |
+  BROWSER_API_CALLS_XHR_ONLY: false
+  FEATURE_AUTO_PRUNE: true
+  FEATURE_BUILD_SUPPORT: true
+  FEATURE_PROXY_CACHE: true
+  FEATURE_QUOTA_MANAGEMENT: true
+  FEATURE_UI_V2_REPO_SETTINGS: true
+  FEATURE_UI_V2: true
+  FEATURE_USER_CREATION: true
+  FEATURE_USER_INITIALIZE: true
+  ROBOTS_DISALLOW: false
+  SUPER_USERS:
+  - quayadmin
+quay_init_bundle_name: init-config-bundle
+quay_namespace: quay-enterprise
+quay_registry_components:
+  - kind: clair
+    managed: true
+  - kind: postgres
+    managed: true
+  - kind: objectstorage
+    managed: true
+  - kind: redis
+    managed: true
+  - kind: horizontalpodautoscaler
+    managed: true
+  - kind: route
+    managed: true
+  - kind: mirror
+    managed: true
+  - kind: monitoring
+    managed: true
+  - kind: tls
+    managed: true
+  - kind: quay
+    managed: true
+  - kind: clairpostgres
+    managed: true
+quay_registry_name: registry

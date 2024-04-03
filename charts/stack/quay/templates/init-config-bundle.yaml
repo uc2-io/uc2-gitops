@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.quay_init_bundle_name }}
+  namespace: {{ $.Values.quay_namespace }}
+stringData:
+  config.yaml: |
+    {{- $.Values.quay_init_bundle_data | nindent 4 }}
