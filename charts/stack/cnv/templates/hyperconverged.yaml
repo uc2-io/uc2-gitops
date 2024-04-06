@@ -1,0 +1,42 @@
+---
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
+metadata:
+{{- if $.Values.annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.annotations) $ | nindent 4 }}
+{{- end }}
+  name: {{ $.Values.name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+{{- if $.Values.applicationAwareConfig }}
+  applicationAwareConfig:
+    {{- tpl (toYaml $.Values.applicationAwareConfig) $ | nindent 4 }}
+{{- end }}
+{{- if $.Values.certConfig }}
+  certConfig:
+    {{- tpl (toYaml $.Values.certConfig) $ | nindent 4 }}
+{{- end }}
+{{- if $.Values.featureGates }}
+  featureGates:
+    {{- tpl (toYaml $.Values.featureGates) $ | nindent 4 }}
+{{- end }}
+{{- if $.Values.liveMigrationConfig }}
+  liveMigrationConfig:
+    {{- tpl (toYaml $.Values.liveMigrationConfig) $ | nindent 4 }}
+{{- end }}
+{{- if $.Values.resourceRequirements }}
+  resourceRequirements:
+    {{- tpl (toYaml $.Values.resourceRequirements) $ | nindent 4 }}
+{{- end }}
+{{- if $.Values.uninstallStrategy }}
+  uninstallStrategy: {{ $.Values.uninstallStrategy }}
+{{- end }}
+{{- if $.Values.virtualMachineOptions }}
+  virtualMachineOptions:
+    {{- tpl (toYaml $.Values.virtualMachineOptions) $ | nindent 4 }}
+{{- end }}
+{{- if $.Values.workloadUpdateStrategy }}
+  workloadUpdateStrategy:
+    {{- tpl (toYaml $.Values.workloadUpdateStrategy) $ | nindent 4 }}
+{{- end }}
