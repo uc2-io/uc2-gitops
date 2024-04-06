@@ -1,4 +1,4 @@
-{{- if eq $.Values.ansible_runner_debug_pod "true" }}
+{{- if $.Values.ansible_runner_debug_pod }}
 apiVersion: v1
 kind: Pod
 metadata:

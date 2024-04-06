@@ -1,4 +1,4 @@
-{{- if eq $.Values.ansible_runner_use_buildconfig "true" }}
+{{- if $.Values.ansible_runner_use_buildconfig }}
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:

@@ -1,18 +1,15 @@
 ---
 ansible_runner_base_image: registry.access.redhat.com/ubi8/python-38
-ansible_runner_debug_pod: "false"
+ansible_runner_debug_pod: true
 ansible_runner_external_image: quay.io/nasx/gitops-ansible-runner:latest
 ansible_runner_image_stream_name: ansible-runner
 ansible_runner_name: ansible-runner
 ansible_runner_namespace: ansible-runner
-ansible_runner_use_buildconfig: "false"
+ansible_runner_use_buildconfig: false
 namespace:
   namespaces:
     - name: ansible-runner
 rbac:
-  sa:
-    - name: ansible-runner-sa
-      namespace: ansible-runner
   clusterrole:
     - name: ansible-runner-cr
       rules:
@@ -35,7 +32,7 @@ rbac:
             - list
             - watch
         - apiGroups:
-            - ""
+            - ''
             - storage.k8s.io
           resources:
             - persistentvolumes
@@ -45,7 +42,7 @@ rbac:
             - list
             - watch
         - apiGroups:
-            - "*"
+            - '*'
           resources:
             - clusterroles
             - clusterrolebindings
@@ -57,19 +54,19 @@ rbac:
             - serviceaccounts
             - services
           verbs:
-            - "*"
+            - '*'
         - apiGroups:
             - platform.stackrox.io
           resources:
             - securedclusters
           verbs:
-            - "*"
+            - '*'
         - apiGroups:
             - observability.open-cluster-management.io
           resources:
             - multiclusterobservabilities
           verbs:
-            - "*"
+            - '*'
         - apiGroups:
             - operator.open-cluster-management.io
           resources:
@@ -102,13 +99,13 @@ rbac:
           resources:
             - machinesets
           verbs:
-            - "*"
+            - '*'
         - apiGroups:
             - objectbucket.io
           resources:
             - objectbucketclaims
           verbs:
-            - "*"
+            - '*'
         - apiGroups:
             - route.openshift.io
           resources:
@@ -122,7 +119,7 @@ rbac:
           resources:
             - consolelinks
           verbs:
-            - "*"
+            - '*'
   clusterrolebinding:
     - name: ansible-runner-crb
       role: ansible-runner-cr
@@ -130,3 +127,6 @@ rbac:
         - kind: ServiceAccount
           name: ansible-runner-sa
           namespace: ansible-runner
+  sa:
+    - name: ansible-runner-sa
+      namespace: ansible-runner
