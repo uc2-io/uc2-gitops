@@ -9,7 +9,9 @@ metadata:
 {{- end }}
   name: {{ .name }}
   labels:
+{{- if not .skip_common_labels }}  
     {{- include "common.labels.labels" $ | nindent 4 }}
+{{- end }}
 {{- if .labels }}
     {{- tpl (toYaml .labels) $ | nindent 4 }}
 {{- end }}

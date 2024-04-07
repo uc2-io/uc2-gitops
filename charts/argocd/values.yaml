@@ -1,0 +1,256 @@
+---
+controller:
+  processors:
+    operation: 3
+    status: 3
+  resources:
+    limits:
+      cpu: '1.5'
+      memory: 2048Mi
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+  sharding:
+    enabled: true
+    replicas: 3
+grafana:
+  enabled: false
+  ingress:
+    enabled: false
+  route:
+    enabled: false
+ha:
+  enabled: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 250m
+      memory: 128Mi
+initialSSHKnownHosts: {}
+projects:
+  - clusterResourceWhitelist:
+      - group: '*'
+        kind: '*'
+    destinations:
+      - namespace: '*'
+        server: '*'
+    name: cluster-config
+    sourceRepos:
+      - '*'
+  - clusterResourceWhitelist:
+      - group: '*'
+        kind: '*'
+    destinations:
+      - namespace: '*'
+        server: '*'
+    name: stack-apps
+    sourceRepos:
+      - '*'
+prometheus:
+  enabled: false
+  ingress:
+    enabled: false
+  route:
+    enabled: false
+rbac:
+  defaultPolicy: ''
+  policy: |
+    g, system:cluster-admins, role:admin
+    g, cluster-admins, role:admin
+  scopes: '[groups]'
+redis:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 250m
+      memory: 128Mi
+repo:
+  replicas: 3
+  resources:
+    limits:
+      cpu: '2'
+      memory: 2048Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+resourceExclusions: |
+  - apiGroups:
+    - tekton.dev
+    kinds:
+    - PipelineRun
+resourceHealthChecks:
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
+            if condition.type == "Available" and condition.status == "True" then
+              hs.message = condition.message
+              hs.status = "Healthy"
+              return hs
+            end
+            if condition.type == "Degraded" and condition.status == "True" then
+              hs.message = condition.message
+              hs.status = "Degraded"
+            end
+          end
+        end
+      end
+      hs.message = "Waiting for condition Available"
+      hs.status = "Progressing"
+      return hs
+    group: hco.kubevirt.io
+    kind: HyperConverged
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
+            if condition.type == "Available" and condition.status == "True" then
+              hs.message = condition.message
+              hs.status = "Healthy"
+              return hs
+            end
+          end
+        end
+      end
+      hs.message = "Waiting for condition Available"
+      hs.status = "Progressing"
+      return hs
+    group: quay.redhat.com
+    kind: QuayRegistry
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.phase ~= nil then
+          if obj.status.phase == "Running" then
+            hs.status = "Healthy"
+            hs.message = obj.status.phase
+            return hs
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for MultiClusterHub to complete"
+      return hs
+    group: operator.open-cluster-management.io
+    kind: MultiClusterHub
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.phase ~= nil then
+          if obj.status.phase == "Ready" then
+            hs.status = "Healthy"
+            hs.message = obj.status.phase
+            return hs
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for StorageCluster to complete"
+      return hs
+    group: ocs.openshift.io
+    kind: StorageCluster
+  - check: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = ""
+      if obj.status ~= nil then
+        if obj.status.health ~= nil then
+          hs.status = obj.status.health.status
+          if obj.status.health.message ~= nil then
+            hs.message = obj.status.health.message
+          end
+        end
+      end
+      return hs
+    group: argoproj.io
+    kind: Application
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.phase ~= nil then
+          if obj.status.phase == "Complete" then
+            hs.status = "Healthy"
+            hs.message = obj.status.phase
+            return hs
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for InstallPlan to complete"
+      return hs
+    group: operators.coreos.com
+    kind: InstallPlan
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.currentCSV ~= nil and (obj.status.state == "AtLatestKnown" or obj.status.state == "UpgradeAvailable" or obj.status.state == "UpgradePending") then
+          hs.status = "Healthy"
+          hs.message = "Subscription installed"
+          return hs
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for Subscription to complete."
+      return hs
+    group: operators.coreos.com
+    kind: Subscription
+resourceIgnoreDifferences:
+  resourceIdentifiers:
+    - customization:
+        jsonPointers:
+          - /spec/host
+      group: route.openshift.io
+      kind: Route
+    - customization:
+        jsonPointers:
+          - /spec/template/spec/containers/0/image
+      group: apps
+      kind: Deployment
+    - customization:
+        jsonPointers:
+          - /spec/template/spec/containers/0/image
+      group: apps.openshift.io
+      kind: DeploymentConfig
+server:
+  autoscale:
+    enabled: false
+  grpc:
+    ingress:
+      enabled: false
+  ingress:
+    enabled: false
+  replicas: 3
+  resources:
+    limits:
+      cpu: '2'
+      memory: 2048Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  route:
+    enabled: true
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: reencrypt
+  service:
+    type: ''
+sso:
+  dex:
+    openShiftOAuth: true
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  provider: dex
+statusBadgeEnabled: true
+tls:
+  ca: {}

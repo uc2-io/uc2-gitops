@@ -3,19 +3,16 @@
 config:
   env:
     - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
-      value: "uc2-openshift-gitops"
+      value: uc2-openshift-gitops
     - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
-      value: "true"
-
+      value: 'true'
 namespaces:
   - name: uc2-openshift-gitops
-
 operator:
   channel: latest
   installPlanApproval: Automatic
   name: openshift-gitops-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-
 operatorgroup:
   create: false

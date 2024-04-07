@@ -1,0 +1,15 @@
+{{- range .Values.projects }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace | default (include "common.names.namespace" $) }}
+spec:
+  clusterResourceWhitelist:
+    {{- tpl (toYaml .clusterResourceWhitelist) $ | nindent 4 }}
+  destinations:
+    {{- tpl (toYaml .destinations) $ | nindent 4 }}
+  sourceRepos:
+    {{- tpl (toYaml .sourceRepos) $ | nindent 4 }}
+{{- end }}
