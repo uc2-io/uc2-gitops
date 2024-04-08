@@ -37,7 +37,5 @@ spec:
   route_host: {{ $.Values.aap_ac_route_host }}
 {{- end }}
   route_tls_termination_mechanism: Edge
-{{- if $.Values.aap_ac_set_self_labels }}
   set_self_labels: {{ $.Values.aap_ac_set_self_labels }}
-{{- end }}
   task_privileged: {{ $.Values.aap_ac_task_privileged }}
