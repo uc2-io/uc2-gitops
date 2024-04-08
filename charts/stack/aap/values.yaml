@@ -3,7 +3,7 @@ aap_ac_name: automation-controller
 aap_ac_namespace: aap
 aap_ac_postgres_storage_class: odf-storagecluster-ceph-rbd
 aap_ac_projects_storage_access_mode: ReadWriteMany
-aap_ac_projects_storage_class: ocs-storagecluster-cephfs
+aap_ac_projects_storage_class: odf-storagecluster-cephfs
 aap_ac_projects_storage_size: 10Gi
 aap_ac_replicas: 2
 aap_ac_task_privileged: false
