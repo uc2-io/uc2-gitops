@@ -1,0 +1,41 @@
+apiVersion: automationcontroller.ansible.com/v1beta1
+kind: AutomationController
+metadata:
+  {{- if $.Values.aap_ac_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.aap_ac_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.aap_ac_labels }}
+    {{- tpl (toYaml $.Values.aap_ac_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.aap_ac_name }}
+  namespace: {{ $.Values.aap_ac_namespace }}
+spec:
+  admin_user: admin
+  auto_upgrade: true
+  create_preload_data: false
+  garbage_collect_secrets: false
+  image_pull_policy: IfNotPresent
+  ingress_type: Route
+  ipv6_disabled: true
+  loadbalancer_port: 80
+  loadbalancer_protocol: http
+  no_log: true
+  postgres_keepalives_count: 5
+  postgres_keepalives_idle: 5
+  postgres_keepalives_interval: 5
+  postgres_keepalives: true
+  postgres_storage_class: {{ $.Values.aap_ac_postgres_storage_class }}
+  projects_persistence: true
+  projects_storage_access_mode: {{ $.Values.aap_ac_projects_storage_access_mode }}
+  projects_storage_class: {{ $.Values.aap_ac_projects_storage_class }}
+  projects_storage_size: {{ $.Values.aap_ac_projects_storage_size }}
+  replicas: {{ $.Values.aap_ac_replicas }}
+{{- if $.Values.aap_ac_route_host }}
+  route_host: {{ $.Values.aap_ac_route_host }}
+{{- end }}
+  route_tls_termination_mechanism: Edge
+  set_self_labels: true
+  task_privileged: {{ $.Values.aap_ac_task_privileged }}
