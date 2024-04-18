@@ -1,0 +1,10 @@
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: GroupSync
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: ldap-group-sync
+  namespace: group-sync-operator
+spec:
+  providers:
+    {{- tpl (toYaml $.Values.group_sync_providers) $ | nindent 4 }}

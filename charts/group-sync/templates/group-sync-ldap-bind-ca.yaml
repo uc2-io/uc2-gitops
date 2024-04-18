@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: group-sync-ldap-bind-ca
+  namespace: group-sync-operator
+data:
+  ca.crt: |
+    {{- tpl (toYaml $.Values.group_sync_ldap_bind_ca) $ | nindent 4 }}
