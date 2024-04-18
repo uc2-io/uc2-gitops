@@ -1,0 +1,10 @@
+{{- if .Values.unset_default_storage_class }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+    storageclass.kubernetes.io/is-default-class: 'false'
+  name: {{ .Values.unset_default_storage_class }}
+{{- end }}
