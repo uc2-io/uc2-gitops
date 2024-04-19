@@ -14,6 +14,14 @@ rbac:
     - name: ansible-runner-cr
       rules:
         - apiGroups:
+            - automationcontroller.ansible.com
+          resources:
+            - automationcontrollers
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
             - operator.openshift.io
           resources:
             - consoles
