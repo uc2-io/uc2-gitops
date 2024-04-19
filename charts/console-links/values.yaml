@@ -1,4 +1,3 @@
 ---
 ansible-runner-job:
-  enabled: true
-consolelinks_configmap_namespace: uc2-openshift-gitops
+  enabled: false
