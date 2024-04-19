@@ -114,7 +114,7 @@ application-manager:
                 enabled: true
                 jobs:
                   - ansible_extravars_json: >-
-                      {"links":[{"name":"gitops-console-link","route_name":"openshift-gitops-argocd-server","route_namespace":"uc2-openshift-gitops","imageURL":"https://argo-cd.readthedocs.io/en/stable/assets/logo.png","section":"Baseline Applications","location":"ApplicationMenu","text":"Red Hat OpenShift GitOps (Argo CD)"}]}
+                      {"console_links":[{"name":"gitops-console-link","route_name":"openshift-gitops-argocd-server","route_namespace":"uc2-openshift-gitops","imageURL":"https://argo-cd.readthedocs.io/en/stable/assets/logo.png","section":"Baseline Applications","location":"ApplicationMenu","text":"Red Hat OpenShift GitOps (Argo CD)"}]}
                     ansible_playbook: ansible/job-console-links.yaml
                     git_branch: initial-commit
                     name: baseline-console-links
