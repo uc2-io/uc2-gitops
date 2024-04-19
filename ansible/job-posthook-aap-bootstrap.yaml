@@ -1,0 +1,6 @@
+- name: Ansible Automation Platform Configuration
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: aap_bootstrap

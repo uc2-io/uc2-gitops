@@ -1,0 +1,146 @@
+- name: Query AutomationController Information
+  kubernetes.core.k8s_info:
+    api_version: automationcontroller.ansible.com/v1beta1
+    kind: AutomationController
+    name: "{{ aap_automationcontroller_name }}"
+    namespace: "{{ aap_namespace }}"
+  register: ac_results
+
+- name: Debug ac_results
+  ansible.builtin.debug:
+    var: ac_results
+
+- name: Assert AutomationController Properties
+  ansible.builtin.assert:
+    that:
+      - ac_results.resources | count == 1
+      - ac_results.resources[0].status is defined
+      - ac_results.resources[0].status.adminPasswordSecret is defined
+      - ac_results.resources[0].status.adminUser is defined
+      - ac_results.resources[0].status.URL is defined
+
+- name: Set Relevant Facts
+  ansible.builtin.set_fact:
+    aap_admin_user: "{{ ac_results.resources[0].status.adminUser }}"
+    aap_admin_password_secret: "{{ ac_results.resources[0].status.adminPasswordSecret }}"
+    aap_url: "{{ ac_results.resources[0].status.URL }}"
+
+- name: Debug Relevant Facts
+  ansible.builtin.debug:
+    msg:
+      - "aap_admin_user: {{ aap_admin_user }}"
+      - "aap_admin_password_secret: {{ aap_admin_password_secret }}"
+      - "aap_url: {{ aap_url }}"
+
+- name: Query AutomationController Admin Secret
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ aap_admin_password_secret }}"
+    namespace: "{{ aap_namespace }}"
+  register: ac_admin_secret_results
+
+- name: Assert AutomationController Admin Secret Properties
+  ansible.builtin.assert:
+    that:
+      - ac_admin_secret_results.resources | count == 1
+      - ac_admin_secret_results.resources[0].data is defined
+      - ac_admin_secret_results.resources[0].data.password is defined
+
+- name: Set Admin Password Fact
+  ansible.builtin.set_fact:
+    aap_admin_password: "{{ ac_admin_secret_results.resources[0].data.password | b64decode }}"
+
+- name: Query LDAP Bind Service Account Password
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ aap_ldap_bind_secret_name }}"
+    namespace: "{{ aap_ldap_bind_secret_namespace }}"
+  register: ldap_bind_secret_results
+
+- name: Set Facts
+  ansible.builtin.set_fact:
+    ldap_bind_password: "{{ ldap_bind_secret_results.resources[0].data.bindPassword | b64decode }}"
+
+- name: Configure AAP Manifest
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      manifest: "{{ lookup('ansible.builtin.file', aap_manifest_path) | b64encode }}"
+    force_basic_auth: true
+    method: POST
+    password: "{{ aap_admin_password }}"
+    return_content: true
+    url: "{{ aap_url }}/api/v2/config/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: "{{ aap_validate_certs }}"
+  register: manifest_results
+
+- name: Configure PENDO_TRACKING_STATE
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      PENDO_TRACKING_STATE: off # noqa: yaml[truthy]
+    force_basic_auth: true
+    method: PATCH
+    password: "{{ aap_admin_password }}"
+    return_content: true
+    url: "{{ aap_url }}/api/v2/settings/ui/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: "{{ aap_validate_certs }}"
+  register: pendo_tracking_results
+
+- name: Configure INSIGHTS_TRACKING_STATE
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      INSIGHTS_TRACKING_STATE: off # noqa: yaml[truthy]
+    force_basic_auth: true
+    method: PATCH
+    password: "{{ aap_admin_password }}"
+    return_content: true
+    url: "{{ aap_url }}/api/v2/settings/system/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: "{{ aap_validate_certs }}"
+  register: insights_tracking_results
+
+- name: Configure LDAP Integration
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      AUTH_LDAP_BIND_DN: uid=ocp-service-account,cn=users,cn=accounts,dc=lab,dc=uc2,dc=io
+      AUTH_LDAP_BIND_PASSWORD: "{{ ldap_bind_password }}"
+      AUTH_LDAP_DENY_GROUP: ''
+      AUTH_LDAP_GROUP_SEARCH:
+        - cn=groups,cn=accounts,dc=lab,dc=uc2,dc=io
+        - SCOPE_SUBTREE
+        - (objectClass=posixgroup)
+      AUTH_LDAP_GROUP_TYPE: MemberDNGroupType
+      AUTH_LDAP_GROUP_TYPE_PARAMS:
+        member_attr: member
+        name_attr: cn
+      AUTH_LDAP_ORGANIZATION_MAP: {}
+      AUTH_LDAP_REQUIRE_GROUP: ''
+      AUTH_LDAP_SERVER_URI: ldap://idm1.lab.uc2.io:389
+      AUTH_LDAP_START_TLS: false
+      AUTH_LDAP_TEAM_MAP: {}
+      AUTH_LDAP_USER_ATTR_MAP:
+        email: mail
+        first_name: givenName
+        last_name: sn
+      AUTH_LDAP_USER_DN_TEMPLATE: ''
+      AUTH_LDAP_USER_FLAGS_BY_GROUP:
+        is_superuser:
+          - cn=stack-admins,cn=groups,cn=accounts,dc=lab,dc=uc2,dc=io
+      AUTH_LDAP_USER_SEARCH:
+        - cn=users,cn=accounts,dc=lab,dc=uc2,dc=io
+        - SCOPE_SUBTREE
+        - (uid=%(user)s)
+    force_basic_auth: true
+    method: PATCH
+    password: "{{ aap_admin_password }}"
+    return_content: true
+    url: "{{ aap_url }}/api/v2/settings/all/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: "{{ aap_validate_certs }}"

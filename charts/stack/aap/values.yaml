@@ -8,3 +8,5 @@ aap_ac_projects_storage_size: 10Gi
 aap_ac_replicas: 2
 aap_ac_set_self_labels: false
 aap_ac_task_privileged: false
+ansible-runner-job:
+  enabled: false
