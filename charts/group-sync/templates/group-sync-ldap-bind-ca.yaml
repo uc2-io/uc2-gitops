@@ -7,4 +7,4 @@ metadata:
   namespace: group-sync-operator
 data:
   ca.crt: |
-    {{- tpl (toYaml $.Values.group_sync_ldap_bind_ca) $ | nindent 4 }}
+    {{- $.Values.group_sync_ldap_bind_ca | nindent 4 }}
