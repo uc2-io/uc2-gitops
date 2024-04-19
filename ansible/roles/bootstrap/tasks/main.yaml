@@ -50,8 +50,10 @@
     - argocd_results.resources is defined
     - argocd_results.resources | count == 1
     - argocd_results.resources[0].status is defined
-    - argocd_results.resources[0].status.phase == "Available"
+    - argocd_results.resources[0].status.applicationController is defined
+    - argocd_results.resources[0].status.phase is defined
     - argocd_results.resources[0].status.applicationController == "Running"
+    - argocd_results.resources[0].status.phase == "Available"
 
 - name: Deploy Baseline Configuration
   kubernetes.core.helm:

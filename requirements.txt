@@ -1,6 +1,8 @@
 ansible
+ansible-lint
 dnspython
 jmespath
 openshift
 pyVmomi>=6.7
 git+https://github.com/vmware/vsphere-automation-sdk-python.git ; python_version >= '2.7'
+
