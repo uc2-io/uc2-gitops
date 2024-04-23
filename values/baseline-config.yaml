@@ -48,6 +48,7 @@ application-manager:
                   - name: cluster-admins
                     users:
                       - chris
+                      - cpeters
                       - juanjo
                 clusterrolebinding:
                   - name: cluster-admins-group
