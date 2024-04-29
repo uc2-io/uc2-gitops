@@ -30,6 +30,12 @@ application-manager:
               argocd.argoproj.io/sync-wave: "0"
             name: ansible-runner
             path: charts/ansible-runner
+          # Ansible Runner Configuration
+          registry:
+            annotations:
+              argocd.argoproj.io/sync-wave: "0"
+            name: registry
+            path: charts/registry
           # Microcert API/Ingress Configuration
           microcert-client:
             annotations:

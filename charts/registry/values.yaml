@@ -1,0 +1,16 @@
+---
+registry_log_level: Normal
+registry_management_state: Managed
+registry_operator_log_level: Normal
+registry_pvc_access_mode: ReadWriteOnce
+registry_pvc_name: image-registry-storage
+registry_pvc_namespace: openshift-image-registry
+registry_pvc_size: 100Gi
+registry_pvc_storage_class: thin-csi
+registry_pvc_volume_mode: Filesystem
+registry_replicas: 1
+registry_rollout_strategy: Recreate
+registry_storage_config:
+  managementState: Unmanaged
+  pvc:
+    claim: image-registry-storage

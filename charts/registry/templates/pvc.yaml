@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.registry_pvc_name }}
+  namespace: {{ $.Values.registry_pvc_namespace }}
+spec:
+  accessModes:
+  - {{ $.Values.registry_pvc_access_mode }}
+  resources:
+    requests:
+      storage: {{ $.Values.registry_pvc_size }}
+  storageClassName: {{ $.Values.registry_pvc_storage_class }}
+  volumeMode: {{ $.Values.registry_pvc_volume_mode }}
