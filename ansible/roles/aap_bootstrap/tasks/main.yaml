@@ -4,7 +4,17 @@
     kind: AutomationController
     name: "{{ aap_automationcontroller_name }}"
     namespace: "{{ aap_namespace }}"
+  delay: 10
   register: ac_results
+  retries: 60
+  until:
+    - ac_results.resources is defined
+    - ac_results.resources | length == 1
+    - ac_results.resources[0].status is defined
+    - ac_results.resources[0].status.conditions is defined
+    - ac_results.resources[0].status.conditions | json_query(_query) | first
+  vars:
+    _query: "[?type==`Running`].status"
 
 - name: Debug ac_results
   ansible.builtin.debug:
@@ -13,8 +23,6 @@
 - name: Assert AutomationController Properties
   ansible.builtin.assert:
     that:
-      - ac_results.resources | count == 1
-      - ac_results.resources[0].status is defined
       - ac_results.resources[0].status.adminPasswordSecret is defined
       - ac_results.resources[0].status.adminUser is defined
       - ac_results.resources[0].status.URL is defined
