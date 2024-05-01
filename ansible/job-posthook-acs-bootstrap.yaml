@@ -1,0 +1,6 @@
+- name: Advanced Cluster Security Configuration
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: acs_bootstrap

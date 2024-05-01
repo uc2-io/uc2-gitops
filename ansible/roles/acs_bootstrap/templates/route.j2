@@ -1,0 +1,19 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ central_reencrypt_route_name }}
+  namespace: {{ central_namespace }}
+spec:
+  host: {{ central_reencrypt_route_host }}
+  port:
+    targetPort: https
+  tls:
+    destinationCACertificate: |-
+{{ central_ca_certificate | indent(width=6, first=True) }}
+    insecureEdgeTerminationPolicy: Redirect
+    termination: reencrypt
+  to:
+    kind: Service
+    name: central
+    weight: 100
+  wildcardPolicy: None

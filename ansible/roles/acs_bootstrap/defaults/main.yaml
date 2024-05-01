@@ -1,0 +1,5 @@
+---
+central_admin_secret_name: central-htpasswd
+central_namespace: stackrox
+central_route_name: central
+central_validate_certs: true

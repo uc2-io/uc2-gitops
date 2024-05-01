@@ -1,0 +1,80 @@
+apiVersion: platform.stackrox.io/v1alpha1
+kind: Central
+metadata:
+  {{- if $.Values.central_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.central_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.central_labels }}
+    {{- tpl (toYaml $.Values.central_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.central_name }}
+  namespace: {{ $.Values.central_namespace }}
+spec:
+  monitoring:
+    openshift:
+      enabled: true
+  central:
+    notifierSecretsEncryption:
+      enabled: false
+    exposure:
+      loadBalancer:
+        enabled: false
+      nodePort:
+        enabled: false
+      route:
+        enabled: {{ $.Values.central_route_enabled }}
+        {{- if $.Values.central_route_host }}
+        host: {{ $.Values.central_route_host }}
+        {{- end }}
+    {{- if $.Values.central_tls_secret_name }}
+    defaultTLSSecret:
+      name: {{ $.Values.central_tls_secret_name }}
+    {{- end }}
+    telemetry:
+      enabled: true
+    db:
+      isEnabled: Default
+      persistence:
+        persistentVolumeClaim:
+          claimName: {{ $.Values.central_db_claim_name }}
+          size: {{ $.Values.central_db_claim_size }}
+          storageClassName: {{ $.Values.central_db_claim_storage_class }}
+  egress:
+    connectivityPolicy: Online
+  {{- if $.Values.central_tls_additional_ca }}
+  tls:
+    additionalCAs:
+      - content: |
+          {{- $.Values.central_tls_additional_ca | nindent 10 }}
+        name: ca-bundle.crt
+  {{- end }}
+  scannerV4:
+    db:
+      persistence:
+        persistentVolumeClaim:
+          claimName: {{ $.Values.scanner_v4_db_claim_name }}
+          size: {{ $.Values.scanner_v4_db_claim_size }}
+          storageClassName: {{ $.Values.scanner_v4_db_claim_storage_class }}
+    indexer:
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3
+    matcher:
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3
+    scannerComponent: Enabled
+  scanner:
+    analyzer:
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3

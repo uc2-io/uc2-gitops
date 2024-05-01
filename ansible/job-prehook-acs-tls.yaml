@@ -1,0 +1,72 @@
+- name: Generate Advanced Cluster Security TLS Certificate
+  become: false
+  gather_facts: false
+  hosts: localhost
+  tasks:
+    - name: Make Sure Required Variables Exist
+      ansible.builtin.assert:
+        that:
+          - central_namespace is defined
+          - central_route_host is defined
+
+    - name: Query Lock
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: ConfigMap
+        name: microcert-acs-lock
+        namespace: ansible-runner
+      register: microcert_lock_results
+
+    - name: Create TLS Certificate
+      when:
+        - microcert_lock_results.resources | count == 0
+      block:
+        - name: Load Token from Secret
+          ansible.builtin.set_fact:
+            token: "{{ lookup('file', '/etc/microcert/config/token') }}"
+
+        - name: Request Certificate from Microcert
+          ansible.builtin.uri:
+            body:
+              common_name: "{{ central_route_host }}"
+              country_name: US
+              locality_name: Northern Virginia
+              organizational_unit_name: UC2 Compute Cloud
+              organization_name: UC2 PKI
+              state_or_provice_name: Virginia
+            body_format: json
+            ca_path: /etc/microcert/config/ca.crt
+            headers:
+              Token: "{{ token }}"
+            method: POST
+            url: https://microcert.lab.uc2.io/api/certificate
+          register: microcert_results
+
+        - name: Debug microcert_results
+          ansible.builtin.debug:
+            var: microcert_results
+
+        - name: Create TLS Secret
+          kubernetes.core.k8s:
+            resource_definition:
+              apiVersion: v1
+              data:
+                tls.crt: "{{ microcert_results.json['tls.crt'] | ansible.builtin.b64encode }}"
+                tls.key: "{{ microcert_results.json['tls.key'] | ansible.builtin.b64encode }}"
+              kind: Secret
+              metadata:
+                name: uc2-central-tls-keypair
+                namespace: "{{ central_namespace }}"
+              type: kubernetes.io/tls
+            state: present
+
+        - name: Create Lock
+          kubernetes.core.k8s:
+            resource_definition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: microcert-acs-lock
+                namespace: ansible-runner
+              data: {}
+            state: present

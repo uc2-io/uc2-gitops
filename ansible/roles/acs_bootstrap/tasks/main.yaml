@@ -1,0 +1,153 @@
+- name: Query ACS Route
+  kubernetes.core.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    name: "{{ central_route_name }}"
+    namespace: "{{ central_namespace }}"
+  register: central_route_results
+
+- name: Set Central Route Host
+  ansible.builtin.set_fact:
+    central_route_host: "{{ central_route_results.resources[0].spec.host }}"
+
+- name: Debug central_route_results
+  ansible.builtin.debug:
+    var: central_route_host
+
+- name: Query Cluster Infrastructure Resource
+  kubernetes.core.k8s_info:
+    api_version: config.openshift.io/v1
+    kind: Infrastructure
+    name: cluster
+  register: cluster_infrastructure_results
+
+- name: Query ACS Administrator Password
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ central_admin_secret_name }}"
+    namespace: "{{ central_namespace }}"
+  register: central_admin_secret_results
+
+- name: Set ACS Administrator Password Fact
+  ansible.builtin.set_fact:
+    central_admin_password: "{{ central_admin_secret_results.resources[0].data.password | ansible.builtin.b64decode }}"
+
+- name: Create cluster-init Bundle
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      name: cluster-default
+    force_basic_auth: true
+    method: POST
+    return_content: true
+    status_code:
+      - 200
+      - 409
+    url: "https://{{ central_route_host }}/v1/cluster-init/init-bundles"
+    url_password: "{{ central_admin_password }}"
+    url_username: admin
+    validate_certs: "{{ central_validate_certs }}"
+  register: central_init_bundle_results
+
+- name: Create Default cluster-init Bundle and SecuredCluster for Central
+  when:
+    - central_init_bundle_results.status == 200
+  block:
+    - name: Set central_kubectl_bundle Fact
+      ansible.builtin.set_fact:
+        central_kubectl_bundle: "{{ central_init_bundle_results.json.kubectlBundle | ansible.builtin.b64decode }}"
+
+    - name: Apply cluster-init Bundle
+      kubernetes.core.k8s:
+        namespace: "{{ central_namespace }}"
+        resource_definition: "{{ central_kubectl_bundle }}"
+        state: present
+
+- name: Create SecuredCluster Resource for Central
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: platform.stackrox.io/v1alpha1
+      kind: SecuredCluster
+      metadata:
+        name: stackrox-secured-cluster-services
+        namespace: stackrox
+      spec:
+        auditLogs:
+          collection: Auto
+        admissionControl:
+          listenOnUpdates: true
+          bypass: BreakGlassAnnotation
+          contactImageScanners: DoNotScanInline
+          listenOnCreates: true
+          timeoutSeconds: 20
+          listenOnEvents: true
+        scanner:
+          analyzer:
+            scaling:
+              autoScaling: Enabled
+              maxReplicas: 5
+              minReplicas: 2
+              replicas: 3
+          scannerComponent: AutoSense
+        perNode:
+          collector:
+            collection: EBPF
+            imageFlavor: Regular
+          taintToleration: TolerateTaints
+        clusterName: "{{ cluster_infrastructure_results.resources[0].status.infrastructureName }}"
+        centralEndpoint: "{{ central_route_host }}:443"
+    state: present
+
+- name: Create OpenShift Auth Provider
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      id: ""
+      name: OpenShift OAuth
+      type: openshift
+      config: {}
+      uiEndpoint: "{{ central_route_host }}"
+      enabled: true
+      traits:
+        mutabilityMode: ALLOW_MUTATE
+    force_basic_auth: true
+    method: POST
+    return_content: true
+    status_code:
+      - 200
+      - 400
+    url: "https://{{ central_route_host }}/v1/authProviders"
+    url_password: "{{ central_admin_password }}"
+    url_username: admin
+    validate_certs: "{{ central_validate_certs }}"
+  register: central_auth_provider_results
+
+- name: Setup Auth Provider
+  when:
+    - central_auth_provider_results.status == 200
+  block:
+    - name: Setup Access Rules
+      ansible.builtin.uri:
+        body_format: json
+        body:
+          previous_groups: []
+          required_groups:
+            - props:
+                authProviderId: "{{ central_auth_provider_results.json.id }}"
+              roleName: Analyst
+            - props:
+                authProviderId: "{{ central_auth_provider_results.json.id }}"
+                id: ""
+                key: groups
+                value: stack-admins
+              roleName: Admin
+        force_basic_auth: true
+        method: POST
+        return_content: true
+        status_code:
+          - 200
+        url: "https://{{ central_route_host }}/v1/groupsbatch"
+        url_password: "{{ central_admin_password }}"
+        url_username: admin
+        validate_certs: "{{ central_validate_certs }}"
