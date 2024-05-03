@@ -1,4 +1,23 @@
 {{/*
+Checks if the chart is globally disabled
+*/}}
+{{- define "application-manager.isChartGloballyDisabled" -}}
+    {{- if .Values.global -}}
+        {{- if .Values.global.global_disable_chart -}}
+            {{- if has .chart.name .Values.global.global_disable_chart -}}
+                {{- printf "true" -}}
+            {{- else -}}
+                {{- printf "false" -}}
+            {{- end -}}
+        {{- else -}}
+            {{- printf "false" -}}
+        {{- end -}}
+    {{- else -}}
+        {{- printf "false" -}}
+    {{- end -}}
+{{- end -}}
+
+{{/*
 Determines the location of the Helm chart path
 */}}
 {{- define "application-manager.chartPath" -}}
