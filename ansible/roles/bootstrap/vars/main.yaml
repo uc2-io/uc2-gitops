@@ -1,6 +1,7 @@
 bootstrap_argocd_release_name: openshift-gitops
 bootstrap_baseline_values_file: files/helm-values/baseline-config.yaml
 bootstrap_charts_relative_path: "../../../charts"
+bootstrap_global_baseline_disable_charts: []
 bootstrap_namespace_release_name: openshift-gitops-namespace
 bootstrap_operator_release_name: openshift-gitops-operator
 bootstrap_operator_release_namespace: openshift-operators

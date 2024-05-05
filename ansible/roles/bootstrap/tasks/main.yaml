@@ -62,3 +62,17 @@
     release_namespace: "{{ bootstrap_release_namespace }}"
     values_files:
       - "{{ role_path }}/{{ bootstrap_baseline_values_file }}"
+  when:
+    - global_baseline_disable_charts | count == 0
+
+- name: Deploy Baseline Configuration With Disabled Chart(s) # noqa: jinja[spacing]
+  kubernetes.core.helm:
+    chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/bootstrap"
+    release_name: bootstrap
+    release_namespace: "{{ bootstrap_release_namespace }}"
+    set_values:
+      - value: "global.baseline_disable_charts={ {{- global_baseline_disable_charts | join(',') -}} }"
+    values_files:
+      - "{{ role_path }}/{{ bootstrap_baseline_values_file }}"
+  when:
+    - global_baseline_disable_charts | count > 0

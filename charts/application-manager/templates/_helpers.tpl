@@ -3,8 +3,8 @@ Checks if the chart is globally disabled
 */}}
 {{- define "application-manager.isChartGloballyDisabled" -}}
     {{- if .Values.global -}}
-        {{- if .Values.global.global_disable_chart -}}
-            {{- if has .chart.name .Values.global.global_disable_chart -}}
+        {{- if .Values.global.baseline_disable_charts -}}
+            {{- if has .chart.name .Values.global.baseline_disable_charts -}}
                 {{- printf "true" -}}
             {{- else -}}
                 {{- printf "false" -}}

@@ -23,6 +23,29 @@ charts:
         selfHeal: true
         targetRevision: initial-commit
       charts:
+        # Configure Storage Classes
+        storageclasses:
+          name: storageclasses
+          path: charts/storageclass
+          annotations:
+            argocd.argoproj.io/sync-wave: "-1"
+          values:
+            storageclasses:
+              - allowVolumeExpansion: true
+                name: pool-spinning-z2-1
+                parameters:
+                  datastoreurl: ds:///vmfs/volumes/2b4c7ed4-7b52d2f0-0000-000000000000/
+                provisioner: csi.vsphere.vmware.com
+                reclaimPolicy: Delete
+                volumeBindingMode: WaitForFirstConsumer
+              - allowVolumeExpansion: true
+                name: pool-nvme-vms
+                parameters:
+                  datastoreurl: ds:///vmfs/volumes/5f403327-763d9b14-7741-0002c9235df0/
+                provisioner: csi.vsphere.vmware.com
+                reclaimPolicy: Delete
+                volumeBindingMode: WaitForFirstConsumer
+            unset_default_storage_class: thin-csi
         # Configure Static Node Labels
         static-node-labels:
           name: static-node-labels
@@ -33,6 +56,18 @@ charts:
             - ServerSideApply=true
           values:
             nodes:
+              - name: in0.alice.lab.uc2.io
+                labels:
+                  stack.apps.uc2.io/aap: ""
+                  stack.apps.uc2.io/quay: ""
+              - name: in1.alice.lab.uc2.io
+                labels:
+                  stack.apps.uc2.io/aap: ""
+                  stack.apps.uc2.io/quay: ""
+              - name: in2.alice.lab.uc2.io
+                labels:
+                  stack.apps.uc2.io/aap: ""
+                  stack.apps.uc2.io/quay: ""
               - name: odf0.alice.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
@@ -42,6 +77,27 @@ charts:
               - name: odf2.alice.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
+        # Deploy Developer Hub Operator
+        rhdh-operator:
+          name: rhdh-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: rhdh-operator
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: rhdh-operator
+            operator:
+              channel: fast
+              installPlanApproval: Automatic
+              name: rhdh
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: true
         # Deploy Quay Operator
         quay-operator:
           name: quay-operator
@@ -74,15 +130,17 @@ charts:
             namespace:
               enabled: true
               namespaces:
-                - name: aap
+                - annotations:
+                    openshift.io/node-selector: "stack.apps.uc2.io/aap="
+                  name: aap
             operator:
-              channel: stable-2.4-cluster-scoped
+              channel: stable-2.4
               installPlanApproval: Automatic
               name: ansible-automation-platform-operator
               source: redhat-operators
               sourceNamespace: openshift-marketplace
             operatorgroup:
-              clusterScope: true
+              clusterScope: false
               create: true
         # Deploy Advanced Cluster Management Operator
         acm-operator:
@@ -98,6 +156,7 @@ charts:
                 - labels:
                     openshift.io/cluster-monitoring: "true"
                   name: open-cluster-management
+                - name: uc2-gitops
             operator:
               channel: release-2.10
               installPlanApproval: Automatic
@@ -119,6 +178,7 @@ charts:
               enabled: true
               namespaces:
                 - name: rhacs-operator
+                - name: stackrox
             operator:
               channel: stable
               installPlanApproval: Automatic
@@ -128,23 +188,6 @@ charts:
             operatorgroup:
               clusterScope: true
               create: true
-        # Deploy ODF Multicluster Orchestrator Operator
-        odf-multicluster-orchestrator-operator:
-          name: odf-multicluster-orchestrator-operator
-          path: charts/operator
-          annotations:
-            argocd.argoproj.io/sync-wave: "1"
-          destinationNamespace: openshift-operators
-          values:
-            operator:
-              channel: stable-4.15
-              installPlanApproval: Automatic
-              name: odf-multicluster-orchestrator
-              source: redhat-operators
-              sourceNamespace: openshift-marketplace
-            operatorgroup:
-              clusterScope: true
-              create: false
         # Deploy ODF Operator
         odf-operator:
           name: odf-operator
@@ -235,14 +278,101 @@ charts:
                   ansible_playbook: ansible/job-posthook-console-plugin.yaml
                   git_branch: initial-commit
                   name: posthook-odf-console-plugin
-            storagecluster_enabledefaultstorageclass: false
-            storagecluster_storage: 500Gi
+            storagecluster_enabledefaultstorageclass: true
+            storagecluster_storage: 1000Gi
             storagecluster_storageclass: odf-osd-localvolumeset
             storagecluster_use_localstorage: true
-        # Deploy OpenShift Advanced Cluster Management
+            storagecluster_version: "4.15.0"
+        # Deploy Ansible Automation Platform
+        aap:
+          name: aap
+          path: charts/stack/aap
+          annotations:
+            argocd.argoproj.io/sync-wave: "4"
+          destinationNamespace: aap
+          values:
+            aap_ac_route_host: aap.apps.alice.lab.uc2.io
+            aap_ac_set_self_labels: false
+            ansible-runner-job:
+              enabled: true
+              jobs:
+                - annotations:
+                    argocd.argoproj.io/hook: PostSync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                  ansible_playbook: ansible/job-posthook-aap-bootstrap.yaml
+                  git_branch: initial-commit
+                  name: posthook-aap-bootstrap
+                  volume_mounts:
+                    - mountPath: /var/secrets/aap-manifest
+                      name: aap-manifest
+                      readOnly: true
+                  volumes:
+                    - name: aap-manifest
+                      secret:
+                        secretName: aap-manifest
+                - annotations:
+                    argocd.argoproj.io/hook: PostSync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                  ansible_extravars_json: >-
+                    {"console_links":[{"name":"aap-console-link","route_name":"automation-controller","route_namespace":"aap","imageURL":"https://www.ansible.com/images/project-logos/ansible-community.svg","section":"Stack Apps","location":"ApplicationMenu","text":"Ansible Automation Platform"}]}
+                  ansible_playbook: ansible/job-console-links.yaml
+                  git_branch: initial-commit
+                  name: posthook-aap-console-link
+        # Deploy Red Hat Advanced Cluster Management
         acm:
           name: acm
           path: charts/stack/acm
           annotations:
             argocd.argoproj.io/sync-wave: "4"
           destinationNamespace: open-cluster-management
+        # Deploy Quay Registry
+        quay:
+          name: quay
+          path: charts/stack/quay
+          annotations:
+            argocd.argoproj.io/sync-wave: "4"
+          destinationNamespace: quay-enterprise
+        # Deploy Red Hat Advanced Cluster Security
+        acs:
+          name: acs
+          path: charts/stack/acs
+          annotations:
+            argocd.argoproj.io/sync-wave: "4"
+          destinationNamespace: stackrox
+          values:
+            ansible-runner-job:
+              enabled: true
+              jobs:
+                - annotations:
+                    argocd.argoproj.io/hook: PreSync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                  ansible_extravars_json: >-
+                    {"central_namespace":"stackrox","central_route_host":"central.apps.alice.lab.uc2.io"}
+                  ansible_playbook: ansible/job-prehook-acs-tls.yaml
+                  git_branch: initial-commit
+                  name: prehook-acs-tls
+                  serviceaccount: microcert
+                  volume_mounts:
+                    - mountPath: "/etc/microcert/config"
+                      name: microcert-token
+                      readOnly: true
+                  volumes:
+                    - name: microcert-token
+                      secret:
+                        secretName: microcert-token
+                - annotations:
+                    argocd.argoproj.io/hook: PostSync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                  ansible_extravars_json: >-
+                    {"central_validate_certs":false}
+                  ansible_playbook: ansible/job-posthook-acs-bootstrap.yaml
+                  git_branch: initial-commit
+                  name: posthook-acs-bootstrap
+                - annotations:
+                    argocd.argoproj.io/hook: PostSync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                  ansible_extravars_json: >-
+                    {"console_links":[{"name":"acs-console-link","route_name":"central","route_namespace":"stackrox","imageURL":"https://avatars.githubusercontent.com/u/40638982?s=48&v=4","section":"Stack Apps","location":"ApplicationMenu","text":"Advanced Cluster Security"}]}
+                  ansible_playbook: ansible/job-console-links.yaml
+                  git_branch: initial-commit
+                  name: posthook-acs-console-link

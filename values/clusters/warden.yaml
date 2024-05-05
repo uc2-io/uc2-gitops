@@ -43,6 +43,85 @@ charts:
               - name: in2.warden.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
+              - name: wk0.warden.lab.uc2.io
+                labels:
+                  stack.apps.uc2.io/aap: ""
+                  stack.apps.uc2.io/quay: ""
+              - name: wk1.warden.lab.uc2.io
+                labels:
+                  stack.apps.uc2.io/aap: ""
+                  stack.apps.uc2.io/quay: ""
+              - name: wk2.warden.lab.uc2.io
+                labels:
+                  stack.apps.uc2.io/aap: ""
+                  stack.apps.uc2.io/quay: ""
+        # Deploy OpenShift Kubernetes Descheduler Operator
+        descheduler-operator:
+          name: descheduler-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-kube-descheduler-operator
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - labels:
+                    openshift.io/cluster-monitoring: "true"
+                  name: openshift-kube-descheduler-operator
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: cluster-kube-descheduler-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: false
+              create: true
+        # Deploy Kubernetes NMState Operator
+        nmstate-operator:
+          name: nmstate-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-nmstate
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: openshift-nmstate
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: kubernetes-nmstate-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: false
+              create: true
+        # Deploy Quay Operator
+        quay-operator:
+          name: quay-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-operators
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - annotations:
+                    openshift.io/node-selector: "stack.apps.uc2.io/quay="
+                  name: quay-enterprise
+            operator:
+              channel: stable-3.11
+              installPlanApproval: Automatic
+              name: quay-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: false
         # Deploy OpenShift Virtualization Operator
         cnv-operator:
           name: cnv-operator
@@ -55,6 +134,7 @@ charts:
               enabled: true
               namespaces:
                 - name: openshift-cnv
+                  skip_common_labels: true
             operator:
               channel: stable
               installPlanApproval: Automatic
@@ -154,6 +234,15 @@ charts:
                   ansible_playbook: ansible/job-posthook-console-plugin.yaml
                   git_branch: initial-commit
                   name: posthook-odf-console-plugin
+            storagecluster_enabledefaultstorageclass: false
             storagecluster_storage: 500Gi
             storagecluster_storageclass: odf-osd-localvolumeset
             storagecluster_use_localstorage: true
+            storagecluster_version: "4.15.0"
+        # Deploy OpenShift Virtualization
+        cnv:
+          name: cnv
+          path: charts/stack/cnv
+          annotations:
+            argocd.argoproj.io/sync-wave: "4"
+          destinationNamespace: openshift-cnv
