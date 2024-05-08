@@ -18,6 +18,7 @@ ansible-runner-job:
       git_branch: initial-commit
       name: posthook-odf-console-plugin
 nncp:
+  create_nmstate: true
   enabled: true
   definitions:
     - annotations:

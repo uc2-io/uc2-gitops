@@ -1,3 +1,4 @@
 ---
+create_nmstate: false
 definitions: []
 policies: []
