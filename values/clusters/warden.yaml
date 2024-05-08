@@ -201,12 +201,18 @@ charts:
             operatorgroup:
               clusterScope: false
               create: true
+        # Deploy NMState Singleton
+        nmstate:
+          name: nmstate
+          path: charts/nmstate
+          annotations:
+            argocd.argoproj.io/sync-wave: "2"
         # Deploy Local Volume Set for OpenShift Data Foundation (OSD)
         odf-lvs-osd:
           name: odf-lvs-osd
           path: charts/stack/odf-lvs
           annotations:
-            argocd.argoproj.io/sync-wave: "2"
+            argocd.argoproj.io/sync-wave: "3"
           destinationNamespace: openshift-local-storage
           values:
             lvs_nodeselectorterms:
@@ -223,7 +229,7 @@ charts:
           name: odf-storagecluster
           path: charts/stack/odf
           annotations:
-            argocd.argoproj.io/sync-wave: "3"
+            argocd.argoproj.io/sync-wave: "4"
           destinationNamespace: openshift-storage
           valueFiles:
             - ../../../values/clusters/files/warden/odf-storagecluster.yaml
@@ -232,5 +238,5 @@ charts:
           name: cnv
           path: charts/stack/cnv
           annotations:
-            argocd.argoproj.io/sync-wave: "4"
+            argocd.argoproj.io/sync-wave: "5"
           destinationNamespace: openshift-cnv
