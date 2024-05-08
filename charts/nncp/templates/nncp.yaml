@@ -1,0 +1,23 @@
+{{- range .Values.policies }}
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  {{- if .annotations }}
+  annotations:
+    {{- tpl (toYaml .annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if .labels }}
+    {{- tpl (toYaml .labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ .name }}
+spec:
+  desiredState:
+    {{- tpl (toYaml .desiredState) $ | nindent 4 }}
+  {{- if .nodeSelector }}
+  nodeSelector:
+    {{- tpl (toYaml .nodeSelector) $ | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -1,19 +1,22 @@
 ---
 ansible-runner-job:
   enabled: false
+nncp:
+  enabled: false
 storagecluster_annotations:
-  cluster.ocs.openshift.io/local-devices: "true"
+  cluster.ocs.openshift.io/local-devices: 'true'
   uninstall.ocs.openshift.io/cleanup-policy: delete
   uninstall.ocs.openshift.io/mode: graceful
 storagecluster_enablecephtools: true
 storagecluster_enabledefaultstorageclass: true
+storagecluster_mgr_enableactivepassive: true
 storagecluster_mon_storage: 50Gi
 storagecluster_mon_storageclass: thin-csi
-storagecluster_mgr_enableactivepassive: true
+storagecluster_multus_enable: false
 storagecluster_name: odf-storagecluster
 storagecluster_namespace: openshift-storage
 storagecluster_storage: 2Ti
 storagecluster_storageclass: thin-csi
 storagecluster_use_localstorage: false
-storagecluster_version: "4.15.0"
+storagecluster_version: '4.15.0'
 storagesystem_name: odf-storagecluster-storagesystem

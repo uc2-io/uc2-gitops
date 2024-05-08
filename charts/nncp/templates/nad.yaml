@@ -1,0 +1,20 @@
+{{- range .Values.definitions }}
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  {{- if .annotations }}
+  annotations:
+    {{- tpl (toYaml .annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if .labels }}
+    {{- tpl (toYaml .labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+  config: |-
+    {{- .config | nindent 4 }}
+{{- end }}

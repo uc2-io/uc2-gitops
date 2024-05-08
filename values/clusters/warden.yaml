@@ -29,7 +29,6 @@ charts:
           path: charts/static-node-label
           annotations:
             argocd.argoproj.io/sync-wave: "-1"
-          #destinationNamespace: openshift-storage
           syncOptions:
             - ServerSideApply=true
           values:
@@ -37,22 +36,34 @@ charts:
               - name: in0.warden.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
+                  nmstate.apps.uc2.io/vmware: ""
               - name: in1.warden.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
+                  nmstate.apps.uc2.io/vmware: ""
               - name: in2.warden.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
+                  nmstate.apps.uc2.io/vmware: ""
+              - name: metal0.warden.lab.uc2.io
+                labels:
+                  nmstate.apps.uc2.io/metal: ""
+              - name: metal1.warden.lab.uc2.io
+                labels:
+                  nmstate.apps.uc2.io/metal: ""
               - name: wk0.warden.lab.uc2.io
                 labels:
+                  nmstate.apps.uc2.io/vmware: ""
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
               - name: wk1.warden.lab.uc2.io
                 labels:
+                  nmstate.apps.uc2.io/vmware: ""
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
               - name: wk2.warden.lab.uc2.io
                 labels:
+                  nmstate.apps.uc2.io/vmware: ""
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
         # Deploy OpenShift Kubernetes Descheduler Operator
@@ -214,31 +225,8 @@ charts:
           annotations:
             argocd.argoproj.io/sync-wave: "3"
           destinationNamespace: openshift-storage
-          values:
-            ansible-runner-job:
-              enabled: true
-              jobs:
-                - annotations:
-                    argocd.argoproj.io/hook: PreSync
-                    argocd.argoproj.io/hook-delete-policy: HookSucceeded
-                  ansible_extravars_json: >-
-                    {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
-                  ansible_playbook: ansible/job-prehook-validate-lvs.yaml
-                  git_branch: initial-commit
-                  name: prehook-validate-lvs
-                - annotations:
-                    argocd.argoproj.io/hook: PostSync
-                    argocd.argoproj.io/hook-delete-policy: HookSucceeded
-                  ansible_extravars_json: >-
-                    {"additional_plugins":["odf-console"]}
-                  ansible_playbook: ansible/job-posthook-console-plugin.yaml
-                  git_branch: initial-commit
-                  name: posthook-odf-console-plugin
-            storagecluster_enabledefaultstorageclass: false
-            storagecluster_storage: 500Gi
-            storagecluster_storageclass: odf-osd-localvolumeset
-            storagecluster_use_localstorage: true
-            storagecluster_version: "4.15.0"
+          valueFiles:
+            - ../../../values/clusters/files/warden/odf-storagecluster.yaml
         # Deploy OpenShift Virtualization
         cnv:
           name: cnv

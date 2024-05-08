@@ -1,0 +1,123 @@
+ansible-runner-job:
+  enabled: true
+  jobs:
+    - annotations:
+        argocd.argoproj.io/hook: PreSync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+      ansible_extravars_json: >-
+        {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
+      ansible_playbook: ansible/job-prehook-validate-lvs.yaml
+      git_branch: initial-commit
+      name: prehook-validate-lvs
+    - annotations:
+        argocd.argoproj.io/hook: PostSync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+      ansible_extravars_json: >-
+        {"additional_plugins":["odf-console"]}
+      ansible_playbook: ansible/job-posthook-console-plugin.yaml
+      git_branch: initial-commit
+      name: posthook-odf-console-plugin
+nncp:
+  enabled: true
+  definitions:
+    - annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+      config: |
+        {
+          "cniVersion": "0.3.1",
+          "type": "macvlan",
+          "master": "ens35",
+          "mode": "bridge",
+          "ipam": {
+            "type": "whereabouts",
+            "range": "172.16.61.0/24"
+          }
+        }
+      name: odf-private
+      namespace: openshift-storage
+    - annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+      config: |
+        {
+          "cniVersion": "0.3.1",
+          "type": "macvlan",
+          "master": "odf-public",
+          "mode": "bridge",
+          "ipam": {
+            "type": "whereabouts",
+            "range": "172.16.62.0/24"
+          }
+        }
+      name: odf-public
+      namespace: openshift-storage
+  policies:
+    - annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+      desiredState:
+        interfaces:
+          - ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+            name: enp8s0
+            state: up
+            type: ethernet
+          - ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+            name: odf-public
+            state: up
+            type: vlan
+            vlan:
+              base-iface: enp8s0
+              id: 602
+      name: odf-metal-public
+      nodeSelector:
+        nmstate.apps.uc2.io/metal: ''
+    - annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+      desiredState:
+        interfaces:
+          - ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+            name: ens35
+            state: up
+            type: ethernet
+      name: odf-vmware-private
+      nodeSelector:
+        cluster.ocs.openshift.io/openshift-storage: ''
+    - annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+      desiredState:
+        interfaces:
+          - ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+            name: ens34
+            state: up
+            type: ethernet
+          - ipv4:
+              enabled: false
+            ipv6:
+              enabled: false
+            name: odf-public
+            state: up
+            type: vlan
+            vlan:
+              base-iface: ens34
+              id: 602
+      name: odf-vmware-public
+      nodeSelector:
+        nmstate.apps.uc2.io/vmware: ''
+storagecluster_enabledefaultstorageclass: true
+storagecluster_multus_cluster_network: openshift-storage/odf-private
+storagecluster_multus_enable: true
+storagecluster_multus_public_network: openshift-storage/odf-public
+storagecluster_storage: 1000Gi
+storagecluster_storageclass: odf-osd-localvolumeset
+storagecluster_use_localstorage: true
+storagecluster_version: "4.15.0"

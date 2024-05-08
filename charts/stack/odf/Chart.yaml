@@ -1,11 +1,15 @@
 apiVersion: v2
 dependencies:
-  - condition: ansible-runner-job.enabled
+  - condition: ansible-runner-job.enabled,global.ansible-runner-job.enabled
     name: ansible-runner-job
     repository: file://../../ansible-runner-job
     version: 0.1.0
   - name: common
     repository: file://../../common
+    version: 0.1.0
+  - condition: nncp.enabled,global.nncp.enabled
+    name: nncp
+    repository: file://../../nncp
     version: 0.1.0
 description: Chart to Deploy OpenShift Data Foundation
 name: odf

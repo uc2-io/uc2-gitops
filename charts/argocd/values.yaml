@@ -88,6 +88,24 @@ resourceHealthChecks:
       if obj.status ~= nil then
         if obj.status.conditions ~= nil then
           for i, condition in ipairs(obj.status.conditions) do
+            if condition.type == "Available" and condition.status == "True" then
+              hs.message = condition.message
+              hs.status = "Healthy"
+              return hs
+            end
+          end
+        end
+      end
+      hs.message = "Waiting for condition Available"
+      hs.status = "Progressing"
+      return hs
+    group: nmstate.io
+    kind: NodeNetworkConfigurationPolicy
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
             if condition.type == "Deployed" and condition.status == "True" then
               hs.message = condition.reason
               hs.status = "Healthy"

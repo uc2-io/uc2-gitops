@@ -49,6 +49,13 @@ spec:
       storageClassName: {{ $.Values.storagecluster_mon_storageclass }}
       volumeMode: Block
   {{- end }}
+  {{- if $.Values.storagecluster_multus_enable }}
+  network:
+    provider: multus
+    selectors:
+      cluster: {{ $.Values.storagecluster_multus_cluster_network }}
+      public: {{ $.Values.storagecluster_multus_public_network }}
+  {{- end }}
   nodeTopologies: {}
   storageDeviceSets:
   - config: {}
