@@ -30,7 +30,7 @@ application-manager:
               argocd.argoproj.io/sync-wave: "0"
             name: ansible-runner
             path: charts/ansible-runner
-          # Ansible Runner Configuration
+          # Configure OpenShift Internal Image Registry
           registry:
             annotations:
               argocd.argoproj.io/sync-wave: "0"

@@ -5,6 +5,7 @@ metadata:
     argocd.argoproj.io/sync-options: ServerSideApply=true
   name: cluster
 spec:
+  defaultRoute: {{ $.Values.registry_default_route }}
   logLevel: {{ $.Values.registry_log_level }}
   managementState: {{ $.Values.registry_management_state }}
   operatorLogLevel: {{ $.Values.registry_operator_log_level }}

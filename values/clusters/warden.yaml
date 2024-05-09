@@ -233,10 +233,19 @@ charts:
           destinationNamespace: openshift-storage
           valueFiles:
             - ../../../values/clusters/files/warden/odf-storagecluster.yaml
+        # Configure OpenShift Internal Image Registry
+          registry:
+            annotations:
+              argocd.argoproj.io/sync-wave: "5"
+            name: registry
+            path: charts/registry
+            values:
+              registry_default_route: true
+              registry_pvc_storage_class: odf-storagecluster-ceph-rbd
         # Deploy OpenShift Virtualization
         cnv:
           name: cnv
           path: charts/stack/cnv
           annotations:
-            argocd.argoproj.io/sync-wave: "5"
+            argocd.argoproj.io/sync-wave: "6"
           destinationNamespace: openshift-cnv

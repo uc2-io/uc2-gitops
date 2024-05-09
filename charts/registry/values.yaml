@@ -1,4 +1,5 @@
 ---
+registry_default_route: false
 registry_log_level: Normal
 registry_management_state: Managed
 registry_operator_log_level: Normal
