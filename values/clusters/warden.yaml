@@ -37,14 +37,17 @@ charts:
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
                   nmstate.apps.uc2.io/vmware: ""
+                  stack.apps.uc2.io/cnv-infra: ""
               - name: in1.warden.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
                   nmstate.apps.uc2.io/vmware: ""
+                  stack.apps.uc2.io/cnv-infra: ""
               - name: in2.warden.lab.uc2.io
                 labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
                   nmstate.apps.uc2.io/vmware: ""
+                  stack.apps.uc2.io/cnv-infra: ""
               - name: metal0.warden.lab.uc2.io
                 labels:
                   nmstate.apps.uc2.io/metal: ""
@@ -141,6 +144,9 @@ charts:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: openshift-cnv
           values:
+            config:
+              nodeSelector:
+                stack.apps.uc2.io/cnv-infra: ""
             namespace:
               enabled: true
               namespaces:
@@ -234,14 +240,14 @@ charts:
           valueFiles:
             - ../../../values/clusters/files/warden/odf-storagecluster.yaml
         # Configure OpenShift Internal Image Registry
-          registry:
-            annotations:
-              argocd.argoproj.io/sync-wave: "5"
-            name: registry
-            path: charts/registry
-            values:
-              registry_default_route: true
-              registry_pvc_storage_class: odf-storagecluster-ceph-rbd
+        registry:
+          annotations:
+            argocd.argoproj.io/sync-wave: "5"
+          name: registry
+          path: charts/registry
+          values:
+            registry_default_route: true
+            registry_pvc_storage_class: odf-storagecluster-ceph-rbd
         # Deploy OpenShift Virtualization
         cnv:
           name: cnv

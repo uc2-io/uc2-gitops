@@ -21,6 +21,10 @@ spec:
   featureGates:
     {{- tpl (toYaml $.Values.featureGates) $ | nindent 4 }}
 {{- end }}
+{{- if $.Values.infra }}
+  infra:
+    {{- tpl (toYaml $.Values.infra) $ | nindent 4 }}
+{{- end }}
 {{- if $.Values.liveMigrationConfig }}
   liveMigrationConfig:
     {{- tpl (toYaml $.Values.liveMigrationConfig) $ | nindent 4 }}

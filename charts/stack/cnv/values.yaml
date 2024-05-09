@@ -24,6 +24,10 @@ featureGates:
   nonRoot: true
   persistentReservation: false
   withHostPassthroughCPU: true
+infra:
+  nodePlacement:
+    nodeSelector:
+      stack.apps.uc2.io/cnv-infra: ""
 liveMigrationConfig:
   allowAutoConverge: false
   allowPostCopy: false
