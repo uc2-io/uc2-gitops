@@ -1,0 +1,87 @@
+ apiVersion: kubevirt.io/v1
+ kind: VirtualMachine
+ metadata:
+  name: {{ $.Values.image_builder_name }}
+  namespace: {{ $.Values.image_builder_namespace }}
+ spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: {{ $.Values.image_builder_name }}-volume
+      spec:
+        sourceRef:
+          kind: DataSource
+          name: rhel9 
+          namespace: openshift-virtualization-os-images 
+        storage:
+          resources:
+            requests:
+              storage: {{ $.Values.image_builder_root_disk_size }}
+  instancetype:
+    name: {{ $.Values.image_builder_instance_type }}
+  preference:
+    name: rhel.9 
+  running: true
+  template:
+    spec:
+      accessCredentials:
+        - sshPublicKey:
+            propagationMethod:
+              noCloud: {}
+            source:
+              secret:
+                secretName: {{ $.Values.image_builder_ssh_secret_name }}
+      architecture: amd64
+      domain:
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: rootdisk
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+          interfaces:
+            - bridge: {}
+              model: virtio
+              name: default
+          logSerialConsole: false
+          networkInterfaceMultiqueue: true
+        features:
+          acpi: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi: {}
+        machine:
+          type: pc-q35-rhel9.2.0
+      networks:
+        - multus:
+            networkName: {{ $.Values.image_builder_ssh_secret_name }}
+          name: default
+      volumes:
+        - dataVolume:
+            name: {{ $.Values.image_builder_name }}-volume
+          name: rootdisk
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              user: cloud-user
+              disable_network_activation: true
+              runcmd:
+                - |
+                  #!/bin/bash
+                  CON=$(nmcli -g general.connection dev sh {{ $.Values.image_builder_interface }})
+                  nmcli con mod "$CON" ipv4.addresses {{ $.Values.image_builder_ip }}/{{ $.Values.image_builder_cidr }}
+                  nmcli con mod "$CON" ipv4.gateway {{ $.Values.image_builder_gateway }}
+                  nmcli con mod "$CON" ipv4.dns {{ $.Values.image_builder_dns }}
+                  nmcli con mod "$CON" ipv4.dns-search {{ $.Values.image_builder_search }}
+                  nmcli con mod "$CON" ipv4.method manual
+                  nmcli con mod "$CON" ipv6.method disabled
+                  nmcli con up "$CON"
+              growpart:
+                devices: ['/']
+                mode: auto
+              network:
+                config: disabled
+          name: cloudinitdisk

@@ -1,0 +1,64 @@
+---
+- name: Generate Dynamic Inventory
+  become: false
+  gather_facts: false
+  hosts: localhost
+  tasks:
+    - name: Add Image Builder Host to Dynamic Inventory
+      ansible.builtin.add_host:
+        ansible_ssh_host: "{{ builder_ip_address }}"
+        ansible_ssh_port: '22'
+        ansible_ssh_private_key_file: /etc/job/secret/ssh_private_key
+        ansible_ssh_user: "{{ lookup('ansible.builtin.file', '/etc/job/secret/ssh_user') }}"
+        groups:
+          - builders
+        name: "{{ builder_fqdn }}"
+    - name: Wait for Host
+      ansible.builtin.wait_for:
+        host: "{{ builder_ip_address }}"
+        port: 22
+        sleep: 10
+        timeout: 600
+
+- name: Configure Image Builder
+  become: true
+  hosts: builders
+  tasks:
+    - name: Set Hostname
+      ansible.builtin.hostname:
+        name: "{{ builder_fqdn }}"
+        use: systemd
+
+    - name: Subscribe Host Using Activation Key
+      community.general.redhat_subscription:
+        activationkey: "{{ lookup('ansible.builtin.file', '/etc/job/secret/activation_key') }}"
+        org_id: "{{ lookup('ansible.builtin.file', '/etc/job/secret/org_id') }}"
+        pool_ids:
+          - "{{ lookup('ansible.builtin.file', '/etc/job/secret/pool_id') }}"
+        state: present
+
+    - name: Enable Repos
+      community.general.rhsm_repository:
+        name:
+          - rhel-9-for-x86_64-appstream-rpms
+          - rhel-9-for-x86_64-baseos-rpms
+        purge: true
+        state: enabled
+
+    - name: Install Image Builder Packages
+      ansible.builtin.dnf:
+        name:
+          - osbuild-composer
+          - composer-cli
+          - cockpit-composer
+        state: present
+
+    - name: Enable OSBuild Composer Service
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+        enabled: true
+        name: "{{ item }}"
+        state: started
+      loop:
+        - osbuild-composer.socket
+        - cockpit.socket
