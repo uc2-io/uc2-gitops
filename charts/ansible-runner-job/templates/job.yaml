@@ -1,4 +1,4 @@
-{{- range .Values.jobs -}}
+{{- range .Values.jobs }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -57,4 +57,4 @@ spec:
       volumes:
         {{- tpl (toYaml .volumes) $ | nindent 8 }}
       {{- end }}
-{{ end }}
+{{- end }}

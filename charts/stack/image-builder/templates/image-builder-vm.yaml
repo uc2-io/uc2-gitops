@@ -1,9 +1,12 @@
- apiVersion: kubevirt.io/v1
- kind: VirtualMachine
- metadata:
-  name: {{ $.Values.image_builder_name }}
-  namespace: {{ $.Values.image_builder_namespace }}
- spec:
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+labels:
+  {{- include "common.labels.labels" $ | nindent 4 }}
+name: {{ $.Values.image_builder_name }}
+namespace: {{ $.Values.image_builder_namespace }}
+spec:
   dataVolumeTemplates:
     - metadata:
         name: {{ $.Values.image_builder_name }}-volume
