@@ -11,6 +11,7 @@
 - name: Deploy OpenShift Gitops Operator
   kubernetes.core.helm:
     chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/operator"
+    dependency_update: true
     release_name: "{{ bootstrap_operator_release_name }}"
     release_namespace: "{{ bootstrap_operator_release_namespace }}"
     values_files:
@@ -33,6 +34,7 @@
   kubernetes.core.helm:
     chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/argocd"
     create_namespace: true
+    dependency_update: true
     release_name: "{{ bootstrap_argocd_release_name }}"
     release_namespace: "{{ bootstrap_release_namespace }}"
     values_files:
@@ -58,16 +60,18 @@
 - name: Deploy Baseline Configuration
   kubernetes.core.helm:
     chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/bootstrap"
+    dependency_update: true
     release_name: bootstrap
     release_namespace: "{{ bootstrap_release_namespace }}"
     values_files:
       - "{{ role_path }}/{{ bootstrap_baseline_values_file }}"
   when:
-    - global_baseline_disable_charts | count == 0
+    - (global_baseline_disable_charts | default([])) | count == 0
 
 - name: Deploy Baseline Configuration With Disabled Chart(s) # noqa: jinja[spacing]
   kubernetes.core.helm:
     chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/bootstrap"
+    dependency_update: true
     release_name: bootstrap
     release_namespace: "{{ bootstrap_release_namespace }}"
     set_values:
@@ -75,4 +79,5 @@
     values_files:
       - "{{ role_path }}/{{ bootstrap_baseline_values_file }}"
   when:
+    - global_baseline_disable_charts is defined
     - global_baseline_disable_charts | count > 0
