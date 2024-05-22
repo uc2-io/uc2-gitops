@@ -2,10 +2,10 @@
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-labels:
-  {{- include "common.labels.labels" $ | nindent 4 }}
-name: {{ $.Values.image_builder_name }}
-namespace: {{ $.Values.image_builder_namespace }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.image_builder_name }}
+  namespace: {{ $.Values.image_builder_namespace }}
 spec:
   dataVolumeTemplates:
     - metadata:
@@ -75,12 +75,12 @@ spec:
                 - |
                   #!/bin/bash
                   CON=$(nmcli -g general.connection dev sh {{ $.Values.image_builder_interface }})
+                  nmcli con mod "$CON" ipv4.method manual
+                  nmcli con mod "$CON" ipv6.method disabled
                   nmcli con mod "$CON" ipv4.addresses {{ $.Values.image_builder_ip }}/{{ $.Values.image_builder_cidr }}
                   nmcli con mod "$CON" ipv4.gateway {{ $.Values.image_builder_gateway }}
                   nmcli con mod "$CON" ipv4.dns {{ $.Values.image_builder_dns }}
                   nmcli con mod "$CON" ipv4.dns-search {{ $.Values.image_builder_search }}
-                  nmcli con mod "$CON" ipv4.method manual
-                  nmcli con mod "$CON" ipv6.method disabled
                   nmcli con up "$CON"
               growpart:
                 devices: ['/']
