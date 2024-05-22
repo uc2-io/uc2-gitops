@@ -60,7 +60,7 @@ spec:
           type: pc-q35-rhel9.2.0
       networks:
         - multus:
-            networkName: {{ $.Values.image_builder_ssh_secret_name }}
+            networkName: {{ $.Values.image_builder_network_name }}
           name: default
       volumes:
         - dataVolume:
