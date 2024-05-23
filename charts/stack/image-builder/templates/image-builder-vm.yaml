@@ -25,6 +25,9 @@ spec:
     name: rhel.9 
   running: true
   template:
+    metadata:
+      annotations:
+        descheduler.alpha.kubernetes.io/evict: "{{ $.Values.descheduler_evict }}"
     spec:
       accessCredentials:
         - sshPublicKey:
