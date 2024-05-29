@@ -1,0 +1,54 @@
+- name: Archive Stale Clusters on console.redhat.com
+  become: false
+  gather_facts: false
+  hosts: localhost
+  tasks:
+    - name: Set Facts
+      ansible.builtin.set_fact:
+        api_clusters_url: https://api.openshift.com/api/assisted-install/v2/clusters/
+        api_infra_envs_url: https://api.openshift.com/api/assisted-install/v2/infra-envs/
+        api_subscriptions_url: https://api.openshift.com/api/accounts_mgmt/v1/subscriptions/
+        redhat_sso_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+
+    - name: Generate Access Token
+      ansible.builtin.uri:
+        body:
+          client_id: rhsm-api
+          grant_type: refresh_token
+          refresh_token: "{{ offline_token }}"
+        body_format: form-urlencoded
+        method: POST
+        url: "{{ redhat_sso_url }}"
+      register: access_token
+
+    - name: Query Cluster Subscription Information
+      ansible.builtin.uri:
+        headers:
+          Authorization: "Bearer {{ access_token.json.access_token }}"
+        method: GET
+        status_code: 200
+        url: "{{ api_subscriptions_url }}?search=(status='Stale')"
+      register: api_subscription_results
+
+    - name: Debug api_subscription_results
+      ansible.builtin.debug:
+        var: api_subscription_results
+
+    - name: Archive Cluster
+      ansible.builtin.uri:
+        body:
+          status: Archived
+        body_format: json
+        headers:
+          Authorization: "Bearer {{ access_token.json.access_token }}"
+        method: PATCH
+        status_code: 200
+        url: "{{ api_subscriptions_url + item.id }}"
+      loop: "{{ api_subscription_results.json['items'] }}"
+      register: archive_results
+      when:
+        - api_subscription_results.json.total | int > 0
+
+    - name: Debug archive_results
+      ansible.builtin.debug:
+        var: archive_results
