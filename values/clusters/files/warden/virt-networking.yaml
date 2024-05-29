@@ -1,0 +1,40 @@
+---
+definitions:
+  - config: |
+      {
+        "cniVersion": "0.3.1",
+        "ipam": {},
+        "name": "vlan-100",
+        "netAttachDefName": "default/vlan-100",
+        "topology": "localnet",
+        "type": "ovn-k8s-cni-overlay",
+        "vlanID": 100
+      }
+    name: vlan-100
+    namespace: default
+policies:
+  - desiredState:
+      interfaces:
+        - ipv4:
+            enabled: false
+          ipv6:
+            enabled: false
+          name: enp8s0
+          state: up
+          type: ethernet
+        - bridge:
+            options:
+              stp: true
+            port:
+              - name: enp8s0
+          name: ovs-br1
+          state: up
+          type: ovs-bridge
+      ovn:
+        bridge-mappings:
+          - bridge: ovs-br1
+            localnet: vlan-100
+            state: present
+    name: ovs-br1-metal
+    nodeSelector:
+      nmstate.apps.uc2.io/metal: ''
