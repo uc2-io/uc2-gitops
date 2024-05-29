@@ -63,6 +63,27 @@ application-manager:
                       - apiGroup: rbac.authorization.k8s.io
                         kind: Group
                         name: cluster-admins
+        # Deploy Kubernetes NMState Operator
+        nmstate-operator:
+          name: nmstate-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-nmstate
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: openshift-nmstate
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: kubernetes-nmstate-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: false
+              create: true
           # Group Sync Operator
           group-sync-operator:
             name: group-sync-operator
@@ -103,6 +124,29 @@ application-manager:
               operatorgroup:
                 clusterScope: true
                 create: false
+          # Compliance Operator
+          compliance-operator:
+            name: compliance-operator
+            path: charts/operator
+            annotations:
+              argocd.argoproj.io/sync-wave: "1"
+            destinationNamespace: openshift-compliance
+            values:
+              namespace:
+                enabled: true
+                namespaces:
+                  - labels:
+                      openshift.io/cluster-monitoring: "true"
+                    name: openshift-compliance
+              operator:
+                channel: stable
+                installPlanApproval: Automatic
+                name: compliance-operator
+                source: redhat-operators
+                sourceNamespace: openshift-marketplace
+              operatorgroup:
+                clusterScope: true
+                create: true
           # Deploy Group Sync
           group-sync:
             name: group-sync
@@ -110,6 +154,12 @@ application-manager:
             annotations:
               argocd.argoproj.io/sync-wave: "2"
             destinationNamespace: group-sync-operator
+        # Deploy NMState Singleton
+        nmstate:
+          name: nmstate
+          path: charts/nmstate
+          annotations:
+            argocd.argoproj.io/sync-wave: "3"
           # Deploy Custom Console Links
           baseline-console-links:
             name: console-links
