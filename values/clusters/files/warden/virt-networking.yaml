@@ -12,6 +12,18 @@ definitions:
       }
     name: vlan-100
     namespace: default
+  - config: |
+      {
+        "cniVersion": "0.3.1",
+        "ipam": {},
+        "name": "vlan-800",
+        "netAttachDefName": "default/vlan-800",
+        "topology": "localnet",
+        "type": "ovn-k8s-cni-overlay",
+        "vlanID": 800
+      }
+    name: vlan-800
+    namespace: default
 policies:
   - desiredState:
       interfaces:
@@ -34,6 +46,9 @@ policies:
         bridge-mappings:
           - bridge: ovs-br1
             localnet: vlan-100
+            state: present
+          - bridge: ovs-br1
+            localnet: vlan-800
             state: present
     name: ovs-br1-metal
     nodeSelector:
