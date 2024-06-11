@@ -1,0 +1,39 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  annotations: {}
+  labels:
+    app: kyverno-deployment
+  name: kyverno-deployment-subscription
+  namespace: kyverno
+spec:
+  channel: kyverno-channel/kyverno
+  name: kyverno
+  packageFilter:
+    version: 3.2.4
+  packageOverrides:
+    - packageAlias: kyverno
+      packageName: kyverno
+      packageOverrides:
+        - path: spec
+          value:
+            extraArgs:
+              - '--clientRateLimitQPS=20'
+              - '--clientRateLimitBurst=50'
+            resources:
+              limits:
+                memory: 768Mi
+            initResources:
+              limits:
+                memory: 512Mi
+            livenessProbe:
+              initialDelaySeconds: 45
+              periodSeconds: 40
+            readinessProbe:
+              initialDelaySeconds: 35
+              periodSeconds: 20
+            securityContext: null
+  placement:
+    placementRef:
+      kind: Placement
+      name: placement-kyverno-deployment

@@ -21,6 +21,10 @@ policies:
       - path: subscription-admin/
     name: hub-subscription-admin
     remediationAction: enforce
+  - manifests:
+      - path: kyverno
+    name: hub-kyverno
+    remediationAction: enforce
 policySets:
   - description: Policies for ACM Hub Self Management
     name: hub-self-managed
