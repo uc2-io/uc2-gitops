@@ -18,12 +18,12 @@ ansible-runner-job:
       ansible_playbook: ansible/job-posthook-mco-deploy.yaml
       git_branch: initial-commit
       name: posthook-mco-deploy
-
-namespace:
-  enabled: true
-  namespaces:
-    - name: open-cluster-management-observability
-
+gitops_cluster_name: uc2-gitops-cluster
+gitops_default_placement_name: all-openshift-clusters
+gitops_enable: true
+gitops_mcs_name: global
+gitops_mcsb_name: global
+gitops_namespace: uc2-openshift-gitops
 # Values for MultiClusterHub (MCH) and MultiClusterObservability (MCO)
 mch_availability_config: High
 mch_enable_cluster_backup: false
@@ -43,3 +43,7 @@ mco_receive_storage_size: 10Gi
 mco_rules_storage_size: 10Gi
 mco_storage_class: thin-csi
 mco_store_storage_size: 10Gi
+namespace:
+  enabled: true
+  namespaces:
+    - name: open-cluster-management-observability

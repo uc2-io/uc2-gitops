@@ -21,6 +21,9 @@ spec:
   initialSSHKnownHosts:
     {{- tpl (toYaml $.Values.initialSSHKnownHosts) $ | nindent 4 }}
 {{- end }}
+{{- if $.Values.kustomizeBuildOptions }}
+  kustomizeBuildOptions: "{{ $.Values.kustomizeBuildOptions }}"
+{{- end }}
 {{- if $.Values.prometheus }}
   prometheus:
     {{- tpl (toYaml $.Values.prometheus) $ | nindent 4 }}

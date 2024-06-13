@@ -1,0 +1,11 @@
+{{- if $.Values.gitops_enable }}
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.gitops_mcsb_name }}
+  namespace: {{ $.Values.gitops_namespace }}
+spec:
+  clusterSet: {{ $.Values.gitops_mcs_name }}
+{{- end }}

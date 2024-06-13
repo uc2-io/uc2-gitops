@@ -29,6 +29,7 @@ ha:
       cpu: 250m
       memory: 128Mi
 initialSSHKnownHosts: {}
+kustomizeBuildOptions: "--enable-alpha-plugins"
 projects:
   - clusterResourceWhitelist:
       - group: '*'
@@ -69,6 +70,23 @@ redis:
       cpu: 250m
       memory: 128Mi
 repo:
+  env:
+    - name: KUSTOMIZE_PLUGIN_HOME
+      value: /etc/kustomize/plugin
+  initContainers:
+    - command:
+        - /bin/bash
+        - -c
+        - |
+          set -x
+          curl -so /tmp/releases https://api.github.com/repos/open-cluster-management-io/policy-generator-plugin/releases
+          curl -sLo /policy-generator-plugin/PolicyGenerator $(grep browser_download_url /tmp/releases | grep linux-amd64 | cut -d '"' -f4 | sort -V | tail -n1)
+          chmod +x /policy-generator-plugin/PolicyGenerator
+      image: registry.access.redhat.com/ubi9:latest
+      name: policy-generator-plugin-install
+      volumeMounts:
+        - mountPath: /policy-generator-plugin
+          name: policy-generator-plugin
   replicas: 3
   resources:
     limits:
@@ -77,6 +95,12 @@ repo:
     requests:
       cpu: 500m
       memory: 512Mi
+  volumeMounts:
+    - mountPath: /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+      name: policy-generator-plugin
+  volumes:
+    - emptyDir: {}
+      name: policy-generator-plugin
 resourceExclusions: |
   - apiGroups:
     - tekton.dev
