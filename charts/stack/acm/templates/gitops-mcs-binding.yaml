@@ -2,6 +2,8 @@
 apiVersion: cluster.open-cluster-management.io/v1beta2
 kind: ManagedClusterSetBinding
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     {{- include "common.labels.labels" $ | nindent 4 }}
   name: {{ $.Values.gitops_mcsb_name }}
