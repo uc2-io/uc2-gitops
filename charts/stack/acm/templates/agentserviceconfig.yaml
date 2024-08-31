@@ -1,0 +1,35 @@
+apiVersion: agent-install.openshift.io/v1beta1
+kind: AgentServiceConfig
+metadata:
+  {{- if $.Values.asc_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.asc_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.asc_labels }}
+    {{- tpl (toYaml $.Values.asc_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.asc_name }}
+spec:
+  databaseStorage:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: {{ $.Values.asc_database_storage }}
+    storageClassName: {{ $.Values.asc_storage_class_name }}
+  filesystemStorage:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: {{ $.Values.asc_filesystem_storage }}
+    storageClassName: {{ $.Values.asc_storage_class_name }}
+  imageStorage:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: {{ $.Values.asc_image_storage }}
+    storageClassName: {{ $.Values.asc_storage_class_name }}

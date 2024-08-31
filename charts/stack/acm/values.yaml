@@ -1,10 +1,17 @@
 ---
+# Values for AgentServiceConfig
+asc_database_storage: 10Gi
+asc_filesystem_storage: 100Gi
+asc_image_storage: 50Gi
+asc_name: agent
+asc_storage_class_name: odf-storagecluster-ceph-rbd
+# Values for Ansible Runner Job
 ansible-runner-job:
   enabled: true
   jobs:
     - annotations:
         argocd.argoproj.io/hook: PreSync
-        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
       ansible_extravars_json: >-
         {"mch_namespace":"open-cluster-management","mch_pull_secret_name":"pull-secret"}
       ansible_playbook: ansible/job-prehook-mch-pull-secret.yaml
@@ -12,12 +19,13 @@ ansible-runner-job:
       name: prehook-mch-pull-secret
     - annotations:
         argocd.argoproj.io/hook: PostSync
-        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
       ansible_extravars_json: >-
         {"mco_storage_class":"odf-storagecluster-ceph-rbd"}
       ansible_playbook: ansible/job-posthook-mco-deploy.yaml
       git_branch: initial-commit
       name: posthook-mco-deploy
+# Values for ACM GitOps Integration
 gitops_cluster_name: uc2-gitops-cluster
 gitops_default_placement_name: all-openshift-clusters
 gitops_enable: true
@@ -47,3 +55,7 @@ namespace:
   enabled: true
   namespaces:
     - name: open-cluster-management-observability
+# Values for Provisioning Resource
+provisioning_name: provisioning-configuration
+provisioning_network: Disabled
+provisioning_watch_all_namespaces: true

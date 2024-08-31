@@ -1,0 +1,16 @@
+apiVersion: metal3.io/v1alpha1
+kind: Provisioning
+metadata:
+  {{- if $.Values.provisioning_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.provisioning_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.provisioning_labels }}
+    {{- tpl (toYaml $.Values.provisioning_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.provisioning_name }}
+spec:
+  provisioningNetwork: {{ $.Values.provisioning_network }}
+  watchAllNamespaces: {{ $.Values.provisioning_watch_all_namespaces }}
