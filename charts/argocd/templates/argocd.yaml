@@ -5,6 +5,10 @@ metadata:
   name: {{ template "common.names.fullname" . }}
   namespace: {{ template "common.names.namespace" $ }}
 spec:
+{{- if $.Values.applicationSet }}
+  applicationSet:
+    {{- tpl (toYaml $.Values.applicationSet) $ | nindent 4 }}
+{{- end }}
 {{- if $.Values.controller }}
   controller:
     {{- tpl (toYaml $.Values.controller) $ | nindent 4 }}

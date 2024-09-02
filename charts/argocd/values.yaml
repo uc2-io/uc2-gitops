@@ -1,12 +1,23 @@
 ---
+applicationSet:
+  enabled: true
+  sourceNamespaces:
+    - uc2-openshift-gitops
+  resources:
+    limits:
+      cpu: '1'
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1024Mi
 controller:
   processors:
     operation: 3
     status: 3
   resources:
     limits:
-      cpu: '1.5'
-      memory: 2048Mi
+      cpu: '1'
+      memory: 2Gi
     requests:
       cpu: 500m
       memory: 1024Mi
@@ -29,7 +40,7 @@ ha:
       cpu: 250m
       memory: 128Mi
 initialSSHKnownHosts: {}
-kustomizeBuildOptions: "--enable-alpha-plugins"
+kustomizeBuildOptions: '--enable-alpha-plugins'
 projects:
   - clusterResourceWhitelist:
       - group: '*'
@@ -73,16 +84,20 @@ repo:
   env:
     - name: KUSTOMIZE_PLUGIN_HOME
       value: /etc/kustomize/plugin
+    - name: POLICY_GEN_ENABLE_HELM
+      value: 'true'
+    - name: POLICY_GEN_DISABLE_LOAD_RESTRICTORS
+      value: 'true'
   initContainers:
     - command:
         - /bin/bash
         - -c
         - |
           set -x
-          curl -so /tmp/releases https://api.github.com/repos/open-cluster-management-io/policy-generator-plugin/releases
-          curl -sLo /policy-generator-plugin/PolicyGenerator $(grep browser_download_url /tmp/releases | grep linux-amd64 | cut -d '"' -f4 | sort -V | tail -n1)
+          cp /PolicyGenerator /policy-generator-plugin/PolicyGenerator
           chmod +x /policy-generator-plugin/PolicyGenerator
-      image: registry.access.redhat.com/ubi9:latest
+      image: quay.io/nasx/policygenerator-plugin-container:latest
+      imagePullPolicy: Always
       name: policy-generator-plugin-install
       volumeMounts:
         - mountPath: /policy-generator-plugin
@@ -90,8 +105,8 @@ repo:
   replicas: 3
   resources:
     limits:
-      cpu: '2'
-      memory: 2048Mi
+      cpu: '1'
+      memory: 2Gi
     requests:
       cpu: 500m
       memory: 512Mi
@@ -306,8 +321,8 @@ server:
   replicas: 3
   resources:
     limits:
-      cpu: '2'
-      memory: 2048Mi
+      cpu: '1'
+      memory: 2Gi
     requests:
       cpu: 500m
       memory: 512Mi
