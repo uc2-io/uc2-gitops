@@ -1,5 +1,7 @@
 ---
 # Values for AgentServiceConfig
+asc_annotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 asc_database_storage: 10Gi
 asc_filesystem_storage: 100Gi
 asc_image_storage: 50Gi
@@ -56,6 +58,8 @@ namespace:
   namespaces:
     - name: open-cluster-management-observability
 # Values for Provisioning Resource
+provisioning_annotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 provisioning_name: provisioning-configuration
 provisioning_network: Disabled
 provisioning_watch_all_namespaces: true
