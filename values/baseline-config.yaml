@@ -108,13 +108,14 @@ application-manager:
                 clusterScope: false
                 create: true
           # Web Terminal Operator
-          web-terminal-operator:
-            name: web-terminal-operator
+          web-terminal:
+            name: web-terminal
             path: charts/operator
             annotations:
               argocd.argoproj.io/sync-wave: "1"
             destinationNamespace: openshift-operators
             values:
+              nameOverride: web-terminal
               operator:
                 channel: fast
                 installPlanApproval: Automatic
