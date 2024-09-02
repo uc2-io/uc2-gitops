@@ -3,7 +3,7 @@ ansible-runner-job:
   jobs:
     - annotations:
         argocd.argoproj.io/hook: PostSync
-        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
       ansible_playbook: ansible/job-posthook-microcert-client.yaml
       git_branch: initial-commit
       name: posthook-microcert-client
