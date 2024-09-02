@@ -2,7 +2,7 @@
 # Dynamically Generated Charts
 common:
   repoURL: https://github.com/uc2-io/uc2-gitops.git
-  targetRevision: initial-commit
+  targetRevision: main
   namespace: uc2-openshift-gitops
   project: stack-apps
   destinationNamespace: uc2-openshift-gitops
@@ -21,7 +21,7 @@ charts:
         prune: true
         repoURL: https://github.com/uc2-io/uc2-gitops.git
         selfHeal: true
-        targetRevision: initial-commit
+        targetRevision: main
       charts:
         # Configure Storage Classes
         storageclasses:
@@ -327,7 +327,7 @@ charts:
                   ansible_extravars_json: >-
                     {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
                   ansible_playbook: ansible/job-prehook-validate-lvs.yaml
-                  git_branch: initial-commit
+                  git_branch: main
                   name: prehook-validate-lvs
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
@@ -335,7 +335,7 @@ charts:
                   ansible_extravars_json: >-
                     {"additional_plugins":["odf-console"]}
                   ansible_playbook: ansible/job-posthook-console-plugin.yaml
-                  git_branch: initial-commit
+                  git_branch: main
                   name: posthook-odf-console-plugin
             storagecluster_enabledefaultstorageclass: true
             storagecluster_storage: 1000Gi
@@ -359,7 +359,7 @@ charts:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
                   ansible_playbook: ansible/job-posthook-aap-bootstrap.yaml
-                  git_branch: initial-commit
+                  git_branch: main
                   name: posthook-aap-bootstrap
                   volume_mounts:
                     - mountPath: /var/secrets/aap-manifest
@@ -375,7 +375,7 @@ charts:
                   ansible_extravars_json: >-
                     {"console_links":[{"name":"aap-console-link","route_name":"automation-controller","route_namespace":"aap","imageURL":"https://www.ansible.com/images/project-logos/ansible-community.svg","section":"Stack Apps","location":"ApplicationMenu","text":"Ansible Automation Platform"}]}
                   ansible_playbook: ansible/job-console-links.yaml
-                  git_branch: initial-commit
+                  git_branch: main
                   name: posthook-aap-console-link
         # Deploy Red Hat Advanced Cluster Management
         acm:
@@ -408,7 +408,7 @@ charts:
                   ansible_extravars_json: >-
                     {"central_namespace":"stackrox","central_route_host":"central.apps.alice.lab.uc2.io"}
                   ansible_playbook: ansible/job-prehook-acs-tls.yaml
-                  git_branch: initial-commit
+                  git_branch: main
                   name: prehook-acs-tls
                   serviceaccount: microcert
                   volume_mounts:
@@ -425,7 +425,7 @@ charts:
                   ansible_extravars_json: >-
                     {"central_validate_certs":false}
                   ansible_playbook: ansible/job-posthook-acs-bootstrap.yaml
-                  git_branch: initial-commit
+                  git_branch: main
                   name: posthook-acs-bootstrap
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
@@ -433,5 +433,5 @@ charts:
                   ansible_extravars_json: >-
                     {"console_links":[{"name":"acs-console-link","route_name":"central","route_namespace":"stackrox","imageURL":"https://avatars.githubusercontent.com/u/40638982?s=48&v=4","section":"Stack Apps","location":"ApplicationMenu","text":"Advanced Cluster Security"}]}
                   ansible_playbook: ansible/job-console-links.yaml
-                  git_branch: initial-commit
+                  git_branch: main
                   name: posthook-acs-console-link

@@ -2,7 +2,7 @@
 # Dynamically Generated Charts
 common:
   repoURL: https://github.com/uc2-io/uc2-gitops.git
-  targetRevision: initial-commit
+  targetRevision: main
   namespace: uc2-openshift-gitops
   project: stack-apps
   destinationNamespace: uc2-openshift-gitops
@@ -21,7 +21,7 @@ charts:
         prune: true
         repoURL: https://github.com/uc2-io/uc2-gitops.git
         selfHeal: true
-        targetRevision: initial-commit
+        targetRevision: main
       charts:
         # Configure Static Node Labels
         static-node-labels:

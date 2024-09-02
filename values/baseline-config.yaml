@@ -3,7 +3,7 @@
 application-manager:
   common:
     repoURL: https://github.com/uc2-io/uc2-gitops.git
-    targetRevision: initial-commit
+    targetRevision: main
     namespace: uc2-openshift-gitops
     project: cluster-config
     destinationNamespace: uc2-openshift-gitops
@@ -22,7 +22,7 @@ application-manager:
           prune: true
           repoURL: https://github.com/uc2-io/uc2-gitops.git
           selfHeal: true
-          targetRevision: initial-commit
+          targetRevision: main
         charts:
           # Ansible Runner Configuration
           ansible-runner:
@@ -174,7 +174,7 @@ application-manager:
                   - ansible_extravars_json: >-
                       {"console_links":[{"name":"gitops-console-link","route_name":"openshift-gitops-argocd-server","route_namespace":"uc2-openshift-gitops","imageURL":"https://argo-cd.readthedocs.io/en/stable/assets/logo.png","section":"Baseline Applications","location":"ApplicationMenu","text":"Red Hat OpenShift GitOps (Argo CD)"}]}
                     ansible_playbook: ansible/job-console-links.yaml
-                    git_branch: initial-commit
+                    git_branch: main
                     name: baseline-console-links
 bootstrap:
   raw: []

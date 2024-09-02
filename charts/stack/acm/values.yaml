@@ -17,7 +17,7 @@ ansible-runner-job:
       ansible_extravars_json: >-
         {"mch_namespace":"open-cluster-management","mch_pull_secret_name":"pull-secret"}
       ansible_playbook: ansible/job-prehook-mch-pull-secret.yaml
-      git_branch: initial-commit
+      git_branch: main
       name: prehook-mch-pull-secret
     - annotations:
         argocd.argoproj.io/hook: PostSync
@@ -25,7 +25,7 @@ ansible-runner-job:
       ansible_extravars_json: >-
         {"mco_storage_class":"odf-storagecluster-ceph-rbd"}
       ansible_playbook: ansible/job-posthook-mco-deploy.yaml
-      git_branch: initial-commit
+      git_branch: main
       name: posthook-mco-deploy
 # Values for ACM GitOps Integration
 gitops_cluster_name: uc2-gitops-cluster

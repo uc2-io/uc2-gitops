@@ -7,7 +7,7 @@ ansible-runner-job:
       ansible_extravars_json: >-
         {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
       ansible_playbook: ansible/job-prehook-validate-lvs.yaml
-      git_branch: initial-commit
+      git_branch: main
       name: prehook-validate-lvs
     - annotations:
         argocd.argoproj.io/hook: PostSync
@@ -15,7 +15,7 @@ ansible-runner-job:
       ansible_extravars_json: >-
         {"additional_plugins":["odf-console"]}
       ansible_playbook: ansible/job-posthook-console-plugin.yaml
-      git_branch: initial-commit
+      git_branch: main
       name: posthook-odf-console-plugin
 nncp:
   enabled: true
