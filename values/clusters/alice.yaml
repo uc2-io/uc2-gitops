@@ -25,10 +25,10 @@ charts:
       charts:
         # Configure Storage Classes
         storageclasses:
-          name: storageclasses
-          path: charts/storageclass
           annotations:
             argocd.argoproj.io/sync-wave: "-1"
+          name: storageclasses
+          path: charts/storageclass
           values:
             storageclasses:
               - allowVolumeExpansion: true
@@ -48,42 +48,101 @@ charts:
             unset_default_storage_class: thin-csi
         # Configure Static Node Labels
         static-node-labels:
-          name: static-node-labels
-          path: charts/static-node-label
           annotations:
             argocd.argoproj.io/sync-wave: "-1"
+          name: static-node-labels
+          path: charts/static-node-label
           syncOptions:
             - ServerSideApply=true
           values:
             nodes:
-              - name: in0.alice.lab.uc2.io
-                labels:
+              - labels:
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
-              - name: in1.alice.lab.uc2.io
-                labels:
+                name: in0.alice.lab.uc2.io
+              - labels:
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
-              - name: in2.alice.lab.uc2.io
-                labels:
+                name: in1.alice.lab.uc2.io
+              - labels:
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
-              - name: odf0.alice.lab.uc2.io
-                labels:
+                name: in2.alice.lab.uc2.io
+              - labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
-              - name: odf1.alice.lab.uc2.io
-                labels:
+                name: odf0.alice.lab.uc2.io
+              - labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
-              - name: odf2.alice.lab.uc2.io
-                labels:
+                name: odf1.alice.lab.uc2.io
+              - labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
+                name: odf2.alice.lab.uc2.io
+        # Deploy MetalLB Operator
+        metallb-operator:
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: metallb-system
+          name: metallb-operator
+          path: charts/operator
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: metallb-system
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: metallb-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: true
+        # Deploy Node Health Check Operator
+        node-healthcheck-operator:
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-workload-availability
+          name: node-healthcheck-operator
+          path: charts/operator
+          values:
+            namespace:
+              enabled: true
+              namespaces:
+                - name: openshift-workload-availability
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: node-healthcheck-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: true
+        # Deploy Node Self Remediation Operator
+        self-node-remediation-operator:
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-workload-availability
+          name: self-node-remediation-operator
+          path: charts/operator
+          values:
+            operator:
+              channel: stable
+              installPlanApproval: Automatic
+              name: self-node-remediation
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: true
+              create: false
         # Deploy Developer Hub Operator
         rhdh-operator:
-          name: rhdh-operator
-          path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: rhdh-operator
+          name: rhdh-operator
+          path: charts/operator
           values:
             namespace:
               enabled: true
@@ -100,11 +159,11 @@ charts:
               create: true
         # Deploy Quay Operator
         quay-operator:
-          name: quay-operator
-          path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: openshift-operators
+          name: quay-operator
+          path: charts/operator
           values:
             namespace:
               enabled: true
@@ -121,17 +180,17 @@ charts:
               create: false
         # Deploy Ansible Automation Platform Operator
         aap-operator:
-          name: aap-operator
-          path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: aap
+          name: aap-operator
+          path: charts/operator
           values:
             namespace:
               enabled: true
               namespaces:
                 - annotations:
-                    openshift.io/node-selector: "stack.apps.uc2.io/aap="
+                    openshift.io/node-selector: stack.apps.uc2.io/aap=
                   name: aap
             operator:
               channel: stable-2.4
@@ -144,11 +203,11 @@ charts:
               create: true
         # Deploy Advanced Cluster Management Operator
         acm-operator:
-          name: acm-operator
-          path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: open-cluster-management
+          name: acm-operator
+          path: charts/operator
           values:
             namespace:
               enabled: true
@@ -158,7 +217,7 @@ charts:
                   name: open-cluster-management
                 - name: uc2-gitops
             operator:
-              channel: release-2.10
+              channel: release-2.11
               installPlanApproval: Automatic
               name: advanced-cluster-management
               source: redhat-operators
@@ -168,11 +227,11 @@ charts:
               create: true
         # Deploy Advanced Cluster Security Operator
         acs-operator:
-          name: acs-operator
-          path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: rhacs-operator
+          name: acs-operator
+          path: charts/operator
           values:
             namespace:
               enabled: true
@@ -190,11 +249,11 @@ charts:
               create: true
         # Deploy ODF Operator
         odf-operator:
-          name: odf-operator
-          path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: openshift-storage
+          name: odf-operator
+          path: charts/operator
           values:
             namespace:
               enabled: true
@@ -203,7 +262,7 @@ charts:
                     openshift.io/cluster-monitoring: "true"
                   name: openshift-storage
             operator:
-              channel: stable-4.15
+              channel: stable-4.16
               installPlanApproval: Automatic
               name: odf-operator
               source: redhat-operators
@@ -213,11 +272,11 @@ charts:
               create: true
         # Deploy Local Storage Operator
         local-storage-operator:
-          name: local-storage-operator
-          path: charts/operator
           annotations:
             argocd.argoproj.io/sync-wave: "1"
           destinationNamespace: openshift-local-storage
+          name: local-storage-operator
+          path: charts/operator
           values:
             namespace:
               enabled: true
@@ -236,35 +295,35 @@ charts:
               create: true
         # Deploy Local Volume Set for OpenShift Data Foundation (OSD)
         odf-lvs-osd:
-          name: odf-lvs-osd
-          path: charts/stack/odf-lvs
           annotations:
             argocd.argoproj.io/sync-wave: "2"
           destinationNamespace: openshift-local-storage
+          name: odf-lvs-osd
+          path: charts/stack/odf-lvs
           values:
             lvs_nodeselectorterms:
               - matchExpressions:
-                - key: kubernetes.io/hostname
-                  operator: In
-                  values:
-                  - odf0.alice.lab.uc2.io
-                  - odf1.alice.lab.uc2.io
-                  - odf2.alice.lab.uc2.io
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - odf0.alice.lab.uc2.io
+                      - odf1.alice.lab.uc2.io
+                      - odf2.alice.lab.uc2.io
             lvs_storageclass: odf-osd-localvolumeset
         # Deploy OpenShift Data Foundation
         odf-storagecluster:
-          name: odf-storagecluster
-          path: charts/stack/odf
           annotations:
             argocd.argoproj.io/sync-wave: "3"
           destinationNamespace: openshift-storage
+          name: odf-storagecluster
+          path: charts/stack/odf
           values:
             ansible-runner-job:
               enabled: true
               jobs:
                 - annotations:
                     argocd.argoproj.io/hook: PreSync
-                    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
                   ansible_extravars_json: >-
                     {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
                   ansible_playbook: ansible/job-prehook-validate-lvs.yaml
@@ -272,7 +331,7 @@ charts:
                   name: prehook-validate-lvs
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
-                    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
                   ansible_extravars_json: >-
                     {"additional_plugins":["odf-console"]}
                   ansible_playbook: ansible/job-posthook-console-plugin.yaml
@@ -282,14 +341,14 @@ charts:
             storagecluster_storage: 1000Gi
             storagecluster_storageclass: odf-osd-localvolumeset
             storagecluster_use_localstorage: true
-            storagecluster_version: "4.15.0"
+            storagecluster_version: 4.16.0
         # Deploy Ansible Automation Platform
         aap:
-          name: aap
-          path: charts/stack/aap
           annotations:
             argocd.argoproj.io/sync-wave: "4"
           destinationNamespace: aap
+          name: aap
+          path: charts/stack/aap
           values:
             aap_ac_route_host: aap.apps.alice.lab.uc2.io
             aap_ac_set_self_labels: false
@@ -320,25 +379,25 @@ charts:
                   name: posthook-aap-console-link
         # Deploy Red Hat Advanced Cluster Management
         acm:
-          name: acm
-          path: charts/stack/acm
           annotations:
             argocd.argoproj.io/sync-wave: "4"
           destinationNamespace: open-cluster-management
+          name: acm
+          path: charts/stack/acm
         # Deploy Quay Registry
         quay:
-          name: quay
-          path: charts/stack/quay
           annotations:
             argocd.argoproj.io/sync-wave: "4"
           destinationNamespace: quay-enterprise
+          name: quay
+          path: charts/stack/quay
         # Deploy Red Hat Advanced Cluster Security
         acs:
-          name: acs
-          path: charts/stack/acs
           annotations:
             argocd.argoproj.io/sync-wave: "4"
           destinationNamespace: stackrox
+          name: acs
+          path: charts/stack/acs
           values:
             ansible-runner-job:
               enabled: true
@@ -353,7 +412,7 @@ charts:
                   name: prehook-acs-tls
                   serviceaccount: microcert
                   volume_mounts:
-                    - mountPath: "/etc/microcert/config"
+                    - mountPath: /etc/microcert/config
                       name: microcert-token
                       readOnly: true
                   volumes:

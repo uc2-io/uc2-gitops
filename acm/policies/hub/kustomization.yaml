@@ -1,4 +1,0 @@
-generators:
-- ./policy-generator-config.yaml
-commonLabels:
-  open-cluster-management.io/policy-set: hub

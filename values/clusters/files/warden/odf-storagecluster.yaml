@@ -120,4 +120,4 @@ storagecluster_multus_public_network: openshift-storage/odf-public
 storagecluster_storage: 1000Gi
 storagecluster_storageclass: odf-osd-localvolumeset
 storagecluster_use_localstorage: true
-storagecluster_version: "4.15.0"
+storagecluster_version: "4.16.0"
