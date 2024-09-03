@@ -2,12 +2,14 @@
 # Dynamically Generated Charts
 common:
   repoURL: https://github.com/uc2-io/uc2-gitops.git
-  targetRevision: main
+  targetRevision: infra-node-support
   namespace: uc2-openshift-gitops
   project: stack-apps
   destinationNamespace: uc2-openshift-gitops
   prune: true
   selfHeal: true
+global:
+  use_infra_nodes: true
 charts:
   # Cluster Specific Configuration
   stack-apps:
@@ -21,7 +23,7 @@ charts:
         prune: true
         repoURL: https://github.com/uc2-io/uc2-gitops.git
         selfHeal: true
-        targetRevision: main
+        targetRevision: infra-node-support
       charts:
         # Configure Storage Classes
         storageclasses:
@@ -47,27 +49,51 @@ charts:
                 volumeBindingMode: WaitForFirstConsumer
             unset_default_storage_class: thin-csi
         # Configure Static Node Labels
-        static-node-labels:
+        static-node-config:
           annotations:
             argocd.argoproj.io/sync-wave: "-1"
-          name: static-node-labels
-          path: charts/static-node-label
+          name: static-node-config
+          path: charts/static-node-config
           syncOptions:
             - ServerSideApply=true
           values:
             nodes:
-              - labels:
+              - name: in0.alice.lab.uc2.io
+                labels:
+                  node-role.kubernetes.io/infra: ""
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
-                name: in0.alice.lab.uc2.io
-              - labels:
+                taints:
+                  - effect: NoSchedule
+                    key: node-role.kubernetes.io/infra
+                    value: reserved
+                  - effect: NoExecute
+                    key: node-role.kubernetes.io/infra
+                    value: reserved
+              - name: in1.alice.lab.uc2.io
+                labels:
+                  node-role.kubernetes.io/infra: ""
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
-                name: in1.alice.lab.uc2.io
-              - labels:
+                taints:
+                  - effect: NoSchedule
+                    key: node-role.kubernetes.io/infra
+                    value: reserved
+                  - effect: NoExecute
+                    key: node-role.kubernetes.io/infra
+                    value: reserved
+              - name: in2.alice.lab.uc2.io
+                labels:
+                  node-role.kubernetes.io/infra: ""
                   stack.apps.uc2.io/aap: ""
                   stack.apps.uc2.io/quay: ""
-                name: in2.alice.lab.uc2.io
+                taints:
+                  - effect: NoSchedule
+                    key: node-role.kubernetes.io/infra
+                    value: reserved
+                  - effect: NoExecute
+                    key: node-role.kubernetes.io/infra
+                    value: reserved
               - labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
                 name: odf0.alice.lab.uc2.io
@@ -89,6 +115,16 @@ charts:
               enabled: true
               namespaces:
                 - name: metallb-system
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable
               installPlanApproval: Automatic
@@ -110,6 +146,16 @@ charts:
               enabled: true
               namespaces:
                 - name: openshift-workload-availability
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable
               installPlanApproval: Automatic
@@ -127,6 +173,16 @@ charts:
           name: self-node-remediation-operator
           path: charts/operator
           values:
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable
               installPlanApproval: Automatic
@@ -148,6 +204,16 @@ charts:
               enabled: true
               namespaces:
                 - name: rhdh-operator
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: fast
               installPlanApproval: Automatic
@@ -169,6 +235,16 @@ charts:
               enabled: true
               namespaces:
                 - name: quay-enterprise
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable-3.11
               installPlanApproval: Automatic
@@ -192,6 +268,16 @@ charts:
                 - annotations:
                     openshift.io/node-selector: stack.apps.uc2.io/aap=
                   name: aap
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable-2.4
               installPlanApproval: Automatic
@@ -216,6 +302,16 @@ charts:
                     openshift.io/cluster-monitoring: "true"
                   name: open-cluster-management
                 - name: uc2-gitops
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: release-2.11
               installPlanApproval: Automatic
@@ -238,6 +334,16 @@ charts:
               namespaces:
                 - name: rhacs-operator
                 - name: stackrox
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable
               installPlanApproval: Automatic
@@ -261,6 +367,16 @@ charts:
                 - labels:
                     openshift.io/cluster-monitoring: "true"
                   name: openshift-storage
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable-4.16
               installPlanApproval: Automatic
@@ -284,6 +400,16 @@ charts:
                 - labels:
                     openshift.io/cluster-monitoring: "true"
                   name: openshift-local-storage
+            config:
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
+                - effect: NoExecute
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
             operator:
               channel: stable
               installPlanApproval: Automatic
@@ -327,7 +453,7 @@ charts:
                   ansible_extravars_json: >-
                     {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
                   ansible_playbook: ansible/job-prehook-validate-lvs.yaml
-                  git_branch: main
+                  git_branch: infra-node-support
                   name: prehook-validate-lvs
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
@@ -335,7 +461,7 @@ charts:
                   ansible_extravars_json: >-
                     {"additional_plugins":["odf-console"]}
                   ansible_playbook: ansible/job-posthook-console-plugin.yaml
-                  git_branch: main
+                  git_branch: infra-node-support
                   name: posthook-odf-console-plugin
             storagecluster_enabledefaultstorageclass: true
             storagecluster_storage: 1000Gi
@@ -359,7 +485,7 @@ charts:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
                   ansible_playbook: ansible/job-posthook-aap-bootstrap.yaml
-                  git_branch: main
+                  git_branch: infra-node-support
                   name: posthook-aap-bootstrap
                   volume_mounts:
                     - mountPath: /var/secrets/aap-manifest
@@ -375,7 +501,7 @@ charts:
                   ansible_extravars_json: >-
                     {"console_links":[{"name":"aap-console-link","route_name":"automation-controller","route_namespace":"aap","imageURL":"https://www.ansible.com/images/project-logos/ansible-community.svg","section":"Stack Apps","location":"ApplicationMenu","text":"Ansible Automation Platform"}]}
                   ansible_playbook: ansible/job-console-links.yaml
-                  git_branch: main
+                  git_branch: infra-node-support
                   name: posthook-aap-console-link
         # Deploy Red Hat Advanced Cluster Management
         acm:
@@ -384,6 +510,26 @@ charts:
           destinationNamespace: open-cluster-management
           name: acm
           path: charts/stack/acm
+          values:
+            ansible-runner-job:
+              enabled: true
+              jobs:
+                - annotations:
+                    argocd.argoproj.io/hook: PreSync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                  ansible_extravars_json: >-
+                    {"mch_namespace":"open-cluster-management","mch_pull_secret_name":"pull-secret"}
+                  ansible_playbook: ansible/job-prehook-mch-pull-secret.yaml
+                  git_branch: infra-node-support
+                  name: prehook-mch-pull-secret
+                - annotations:
+                    argocd.argoproj.io/hook: PostSync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                  ansible_extravars_json: >-
+                    {"mco_storage_class":"odf-storagecluster-ceph-rbd","use_infra_nodes":true}
+                  ansible_playbook: ansible/job-posthook-mco-deploy.yaml
+                  git_branch: infra-node-support
+                  name: posthook-mco-deploy
         # Deploy Quay Registry
         quay:
           annotations:
@@ -408,7 +554,7 @@ charts:
                   ansible_extravars_json: >-
                     {"central_namespace":"stackrox","central_route_host":"central.apps.alice.lab.uc2.io"}
                   ansible_playbook: ansible/job-prehook-acs-tls.yaml
-                  git_branch: main
+                  git_branch: infra-node-support
                   name: prehook-acs-tls
                   serviceaccount: microcert
                   volume_mounts:
@@ -425,7 +571,7 @@ charts:
                   ansible_extravars_json: >-
                     {"central_validate_certs":false}
                   ansible_playbook: ansible/job-posthook-acs-bootstrap.yaml
-                  git_branch: main
+                  git_branch: infra-node-support
                   name: posthook-acs-bootstrap
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
@@ -433,5 +579,5 @@ charts:
                   ansible_extravars_json: >-
                     {"console_links":[{"name":"acs-console-link","route_name":"central","route_namespace":"stackrox","imageURL":"https://avatars.githubusercontent.com/u/40638982?s=48&v=4","section":"Stack Apps","location":"ApplicationMenu","text":"Advanced Cluster Security"}]}
                   ansible_playbook: ansible/job-console-links.yaml
-                  git_branch: main
+                  git_branch: infra-node-support
                   name: posthook-acs-console-link

@@ -7,3 +7,4 @@ bootstrap_operator_release_name: openshift-gitops-operator
 bootstrap_operator_release_namespace: openshift-operators
 bootstrap_release_name: openshift-gitops-operator
 bootstrap_values_file: files/values-init.yaml
+bootstrap_values_file_infra_nodes: files/values-init-infra-nodes.yaml

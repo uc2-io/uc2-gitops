@@ -24,9 +24,9 @@ charts:
         targetRevision: main
       charts:
         # Configure Static Node Labels
-        static-node-labels:
-          name: static-node-labels
-          path: charts/static-node-label
+        static-node-config:
+          name: static-node-config
+          path: charts/static-node-config
           annotations:
             argocd.argoproj.io/sync-wave: "-1"
           syncOptions:
