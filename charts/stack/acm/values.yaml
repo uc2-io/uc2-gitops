@@ -34,6 +34,16 @@ gitops_enable: true
 gitops_mcs_name: global
 gitops_mcsb_name: global
 gitops_namespace: uc2-openshift-gitops
+# List of ManagedClusterAddons for local-cluster infra node support
+managed_cluster_addons:
+  - application-manager
+  - cert-policy-controller
+  - cluster-proxy
+  - config-policy-controller
+  - governance-policy-framework
+  - hypershift-addon
+  - managed-serviceaccount
+  - work-manager
 # Values for MultiClusterHub (MCH) and MultiClusterObservability (MCO)
 mch_availability_config: High
 mch_enable_cluster_backup: false
