@@ -1,7 +1,0 @@
-apiVersion: cluster.open-cluster-management.io/v1
-kind: ManagedCluster
-metadata:
-  annotations:
-    agent.open-cluster-management.io/klusterlet-config: local-cluster
-    argocd.argoproj.io/sync-options: ServerSideApply=true,SkipDryRunOnMissingResource=true
-  name: local-cluster
