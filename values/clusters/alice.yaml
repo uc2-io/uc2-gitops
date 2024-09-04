@@ -569,7 +569,7 @@ charts:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
                   ansible_extravars_json: >-
-                    {"central_validate_certs":false}
+                    {"central_validate_certs":false,"use_infra_nodes":true}
                   ansible_playbook: ansible/job-posthook-acs-bootstrap.yaml
                   git_branch: infra-node-support
                   name: posthook-acs-bootstrap
