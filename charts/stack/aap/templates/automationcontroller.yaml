@@ -23,19 +23,71 @@ spec:
   loadbalancer_port: 80
   loadbalancer_protocol: http
   no_log: true
+  {{- if $.Values.global.use_infra_nodes }}
+  node_selector: |
+    node-role.kubernetes.io/infra: ""
+  {{- end }}
   postgres_keepalives_count: 5
   postgres_keepalives_idle: 5
   postgres_keepalives_interval: 5
   postgres_keepalives: true
+  {{- if $.Values.global.use_infra_nodes }}
+  postgres_selector: |
+    node-role.kubernetes.io/infra: ""
+  {{- end }}
   postgres_storage_class: {{ $.Values.aap_ac_postgres_storage_class }}
+  {{- if $.Values.global.use_infra_nodes }}
+  postgres_tolerations: |
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+  {{- end }}
   projects_persistence: true
   projects_storage_access_mode: {{ $.Values.aap_ac_projects_storage_access_mode }}
   projects_storage_class: {{ $.Values.aap_ac_projects_storage_class }}
   projects_storage_size: {{ $.Values.aap_ac_projects_storage_size }}
   replicas: {{ $.Values.aap_ac_replicas }}
-{{- if $.Values.aap_ac_route_host }}
+  {{- if $.Values.aap_ac_route_host }}
   route_host: {{ $.Values.aap_ac_route_host }}
-{{- end }}
+  {{- end }}
   route_tls_termination_mechanism: Edge
   set_self_labels: {{ $.Values.aap_ac_set_self_labels }}
+  {{- if $.Values.global.use_infra_nodes }}
+  task_node_selector: |
+    node-role.kubernetes.io/infra: ""
+  {{- end }}
   task_privileged: {{ $.Values.aap_ac_task_privileged }}
+  {{- if $.Values.global.use_infra_nodes }}
+  task_tolerations: |
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+  {{- end }}
+  {{- if $.Values.global.use_infra_nodes }}
+  tolerations: |
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+  {{- end }}
+  {{- if $.Values.global.use_infra_nodes }}
+  web_node_selector: |
+    node-role.kubernetes.io/infra: ""
+  {{- end }}
+  {{- if $.Values.global.use_infra_nodes }}
+  web_tolerations: |
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+  {{- end }}
