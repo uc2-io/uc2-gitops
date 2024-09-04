@@ -4,5 +4,4 @@ metadata:
   annotations:
     agent.open-cluster-management.io/klusterlet-config: local-cluster
     argocd.argoproj.io/sync-options: ServerSideApply=true,SkipDryRunOnMissingResource=true
-  metadata:
-    name: local-cluster
+  name: local-cluster
