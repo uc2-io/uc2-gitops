@@ -44,7 +44,7 @@
     - crd_results.resources is defined
     - crd_results.resources | length == 1
 
-- name: Deploy Argo CD Using OpenShift Gitops Operator # noqa: jinja[spacing]
+- name: Deploy Argo CD Using OpenShift GitOps Operator # noqa: jinja[spacing]
   kubernetes.core.helm:
     chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/argocd"
     create_namespace: true
@@ -52,7 +52,7 @@
     release_name: "{{ bootstrap_argocd_release_name }}"
     release_namespace: "{{ bootstrap_release_namespace }}"
     set_values:
-      - value: "global.baseline_disable_charts={ {{- global_baseline_disable_charts | join(',') -}} }"
+      - value: "global.baseline_disable_charts={ {{- global_baseline_disable_charts | default([]) | join(',') -}} }"
       - value: "global.use_infra_nodes={{ global_use_infra_nodes | default(false) }}"
     values_files:
       - "{{ role_path }}/{{ bootstrap_values_file }}"
