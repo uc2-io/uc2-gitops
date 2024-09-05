@@ -1,0 +1,36 @@
+- name: Add Infrastructure Node Tolerations/Selectors for local-cluster
+  become: false
+  gather_facts: false
+  hosts: localhost
+  module_defaults:
+    kubernetes.core.k8s_info:
+      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      host: https://kubernetes.default.svc
+    kubernetes.core.k8s:
+      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      host: https://kubernetes.default.svc
+  tasks:
+    - name: Wait for ManagedCluster Resource local-cluster
+      kubernetes.core.k8s_info:
+        api_version: cluster.open-cluster-management.io/v1
+        kind: ManagedCluster
+        name: local-cluster
+      delay: 5
+      register: managed_cluster_results
+      retries: 120
+      until:
+        - managed_cluster_results.resources | default([]) | length > 0
+
+    - name: Apply Infrastructure Node Tolerations/Selectors to ManagedCluster Resource local-cluster
+      kubernetes.core.k8s:
+        resource_definition:
+          apiVersion: cluster.open-cluster-management.io/v1
+          kind: ManagedCluster
+          metadata:
+            annotations:
+              open-cluster-management/nodeSelector: '{"node-role.kubernetes.io/infra":""}'
+              open-cluster-management/tolerations: '[{"effect":"NoSchedule","key":"node-role.kubernetes.io/infra","value":"reserved"},{"effect":"NoExecute","key":"node-role.kubernetes.io/infra","value":"reserved"}]'
+            name: local-cluster
+        state: present
