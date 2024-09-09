@@ -450,16 +450,27 @@ charts:
                 - annotations:
                     argocd.argoproj.io/hook: PreSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"lvs_expected_pv_count":3,"lvs_name":"odf-osd-localvolumeset","lvs_namespace":"openshift-local-storage","lvs_storageclass":"odf-osd-localvolumeset"}
+                    {
+                      "lvs_expected_pv_count": 3,
+                      "lvs_name": "odf-osd-localvolumeset",
+                      "lvs_namespace": "openshift-local-storage",
+                      "lvs_storageclass": "odf-osd-localvolumeset"
+                    }
                   ansible_playbook: ansible/job-prehook-validate-lvs.yaml
                   git_branch: infra-node-support
                   name: prehook-validate-lvs
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"additional_plugins":["odf-console"]}
+                    {
+                      "additional_plugins": [
+                        "odf-console"
+                      ]
+                    }
                   ansible_playbook: ansible/job-posthook-console-plugin.yaml
                   git_branch: infra-node-support
                   name: posthook-odf-console-plugin
@@ -484,6 +495,7 @@ charts:
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_playbook: ansible/job-posthook-aap-bootstrap.yaml
                   git_branch: infra-node-support
                   name: posthook-aap-bootstrap
@@ -498,8 +510,21 @@ charts:
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"console_links":[{"name":"aap-console-link","route_name":"automation-controller","route_namespace":"aap","imageURL":"https://www.ansible.com/images/project-logos/ansible-community.svg","section":"Stack Apps","location":"ApplicationMenu","text":"Ansible Automation Platform"}]}
+                    {
+                      "console_links": [
+                        {
+                          "name": "aap-console-link",
+                          "route_name": "automation-controller",
+                          "route_namespace": "aap",
+                          "imageURL": "https://www.ansible.com/images/project-logos/ansible-community.svg",
+                          "section": "Stack Apps",
+                          "location": "ApplicationMenu",
+                          "text": "Ansible Automation Platform"
+                        }
+                      ]
+                    }
                   ansible_playbook: ansible/job-console-links.yaml
                   git_branch: infra-node-support
                   name: posthook-aap-console-link
@@ -514,22 +539,29 @@ charts:
             ansible-runner-job:
               enabled: true
               jobs:
-                - ansible_playbook: ansible/job-acm-infra-node.yaml
+                - ansible_playbook: ansible/job-sync-acm-infra-node.yaml
                   git_branch: infra-node-support
                   name: sync-acm-infra-node
                 - annotations:
                     argocd.argoproj.io/hook: PreSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"mch_namespace":"open-cluster-management","mch_pull_secret_name":"pull-secret"}
+                    {
+                      "mch_namespace": "open-cluster-management",
+                      "mch_pull_secret_name": "pull-secret"
+                    }
                   ansible_playbook: ansible/job-prehook-mch-pull-secret.yaml
                   git_branch: infra-node-support
                   name: prehook-mch-pull-secret
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"mco_storage_class":"odf-storagecluster-ceph-rbd","use_infra_nodes":true}
+                    {
+                      "mco_storage_class": "odf-storagecluster-ceph-rbd"
+                    }
                   ansible_playbook: ansible/job-posthook-mco-deploy.yaml
                   git_branch: infra-node-support
                   name: posthook-mco-deploy
@@ -554,8 +586,12 @@ charts:
                 - annotations:
                     argocd.argoproj.io/hook: PreSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"central_namespace":"stackrox","central_route_host":"central.apps.alice.lab.uc2.io"}
+                    {
+                      "central_namespace": "stackrox",
+                      "central_route_host": "central.apps.alice.lab.uc2.io"
+                    }
                   ansible_playbook: ansible/job-prehook-acs-tls.yaml
                   git_branch: infra-node-support
                   name: prehook-acs-tls
@@ -571,16 +607,32 @@ charts:
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"central_validate_certs":false,"use_infra_nodes":true}
+                    {
+                      "central_validate_certs": false
+                    }
                   ansible_playbook: ansible/job-posthook-acs-bootstrap.yaml
                   git_branch: infra-node-support
                   name: posthook-acs-bootstrap
                 - annotations:
                     argocd.argoproj.io/hook: PostSync
                     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
                   ansible_extravars_json: >-
-                    {"console_links":[{"name":"acs-console-link","route_name":"central","route_namespace":"stackrox","imageURL":"https://avatars.githubusercontent.com/u/40638982?s=48&v=4","section":"Stack Apps","location":"ApplicationMenu","text":"Advanced Cluster Security"}]}
+                    {
+                      "console_links": [
+                        {
+                          "name": "acs-console-link",
+                          "route_name": "central",
+                          "route_namespace": "stackrox",
+                          "imageURL": "https://avatars.githubusercontent.com/u/40638982?s=48&v=4",
+                          "section": "Stack Apps",
+                          "location": "ApplicationMenu",
+                          "text": "Advanced Cluster Security"
+                        }
+                      ]
+                    }
                   ansible_playbook: ansible/job-console-links.yaml
                   git_branch: infra-node-support
                   name: posthook-acs-console-link

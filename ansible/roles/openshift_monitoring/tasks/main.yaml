@@ -1,0 +1,61 @@
+---
+- name: Query Cluster Monitoring ConfigMap
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    name: cluster-monitoring-config
+    namespace: openshift-monitoring
+  register: configmap_results
+
+- name: Debug configmap_results
+  ansible.builtin.debug:
+    var: configmap_results
+
+- name: Set Initial Configuration via ConfigMap
+  ansible.builtin.set_fact:
+    desired_config: "{{ configmap_results.resources[0].data['config.yaml'] | from_yaml }}"
+  when:
+    - configmap_results.resources | count == 1
+    - configmap_results.resources[0].data is defined
+    - configmap_results.resources[0].data['config.yaml'] is defined
+
+- name: Set Initial Configuration via Baseline Config
+  ansible.builtin.set_fact:
+    desired_config: "{{ config_baseline }}"
+  when:
+    - configmap_results.resources | count == 0
+
+- name: Apply Baseline Configuration when Starting with Existing Configuration (ConfigMap)
+  ansible.builtin.set_fact:
+    desired_config: "{{ desired_config | ansible.builtin.combine(config_baseline, recursive=true) }}"
+  when:
+    - configmap_results.resources | count == 1
+    - configmap_results.resources[0].data is defined
+    - configmap_results.resources[0].data['config.yaml'] is defined
+
+- name: Debug desired_config
+  ansible.builtin.debug:
+    var: desired_config
+
+- name: Apply Infra Node Configuration
+  ansible.builtin.set_fact:
+    desired_config: "{{ desired_config | ansible.builtin.combine(config_infra_node, recursive=true) }}"
+  when:
+    - use_infra_nodes | default(false)
+
+- name: Debug desired_config
+  ansible.builtin.debug:
+    var: desired_config
+
+- name: Apply Cluster Monitoring Config
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: cluster-monitoring-config
+        namespace: openshift-monitoring
+      data:
+        "config.yaml": |
+          {{ desired_config | ansible.builtin.to_nice_yaml(indent=2) }}
+    state: present
