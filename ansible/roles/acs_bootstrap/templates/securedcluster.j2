@@ -12,12 +12,12 @@ spec:
     listenOnCreates: true
     listenOnEvents: true
     listenOnUpdates: true
-{% if use_infra_nodes is defined and use_infra_nodes == true %}
+{% if use_infra_nodes | default(false) %}
     nodeSelector:
       node-role.kubernetes.io/infra: ""
 {% endif %}
     timeoutSeconds: 20
-{% if use_infra_nodes is defined and use_infra_nodes == true %}
+{% if use_infra_nodes | default(false) %}
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
