@@ -41,3 +41,15 @@ spec:
         minReplicas: 2
         replicas: 3
     scannerComponent: AutoSense
+{% if use_infra_nodes | default(false) %}
+  sensor:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+{% endif %}
