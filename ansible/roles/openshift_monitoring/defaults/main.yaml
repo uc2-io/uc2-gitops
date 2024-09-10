@@ -4,7 +4,7 @@ config_baseline:
 config_infra_node:
   alertManagerMain:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -14,7 +14,7 @@ config_infra_node:
         value: reserved
   kubeStateMetrics:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -24,7 +24,7 @@ config_infra_node:
         value: reserved
   metricsServer:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -34,7 +34,7 @@ config_infra_node:
         value: reserved
   monitoringPlugin:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -44,7 +44,7 @@ config_infra_node:
         value: reserved
   openshiftStateMetrics:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -54,7 +54,7 @@ config_infra_node:
         value: reserved
   prometheusK8s:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -64,7 +64,7 @@ config_infra_node:
         value: reserved
   prometheusOperator:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -74,7 +74,7 @@ config_infra_node:
         value: reserved
   telemeterClient:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra
@@ -84,7 +84,48 @@ config_infra_node:
         value: reserved
   thanosQuerier:
     nodeSelector:
-      node-role.kubernetes.io/infra: ""
+      node-role.kubernetes.io/infra: ''
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+config_user_infra_node:
+  alertmanager:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ''
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+  prometheus:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ''
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+  prometheusOperator:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ''
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+  thanosRuler:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ''
     tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/infra

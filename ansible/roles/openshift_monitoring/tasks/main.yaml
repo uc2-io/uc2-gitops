@@ -7,9 +7,25 @@
     namespace: openshift-monitoring
   register: configmap_results
 
+- name: Query User Workload Monitoring ConfigMap
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    name: user-workload-monitoring-config
+    namespace: openshift-user-workload-monitoring
+  register: uwm_configmap_results
+  when:
+    - config_baseline.enableUserWorkload
+
 - name: Debug configmap_results
   ansible.builtin.debug:
     var: configmap_results
+
+- name: Debug uwm_configmap_results
+  ansible.builtin.debug:
+    var: uwm_configmap_results
+  when:
+    - config_baseline.enableUserWorkload
 
 - name: Set Initial Configuration via ConfigMap
   ansible.builtin.set_fact:
@@ -47,7 +63,7 @@
   ansible.builtin.debug:
     var: desired_config
 
-- name: Apply Cluster Monitoring Config
+- name: Apply Cluster Monitoring Configuration
   kubernetes.core.k8s:
     resource_definition:
       apiVersion: v1
@@ -59,3 +75,40 @@
         "config.yaml": |
           {{ desired_config | ansible.builtin.to_nice_yaml(indent=2) }}
     state: present
+
+- name: Set Initial UWM Configuration via ConfigMap
+  ansible.builtin.set_fact:
+    uwm_desired_config: "{{ uwm_configmap_results.resources[0].data['config.yaml'] | from_yaml }}"
+  when:
+    - config_baseline.enableUserWorkload
+    - uwm_configmap_results.resources | count == 1
+    - uwm_configmap_results.resources[0].data is defined
+    - uwm_configmap_results.resources[0].data['config.yaml'] is defined
+
+- name: Apply Infra Node UWM Configuration
+  ansible.builtin.set_fact:
+    uwm_desired_config: "{{ uwm_desired_config | default({}) | ansible.builtin.combine(config_user_infra_node, recursive=true) }}"
+  when:
+    - config_baseline.enableUserWorkload
+    - use_infra_nodes | default(false)
+
+- name: Debug uwm_desired_config
+  ansible.builtin.debug:
+    var: uwm_desired_config
+  when:
+    - config_baseline.enableUserWorkload
+
+- name: Apply UWM Configuration
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: user-workload-monitoring-config
+        namespace: openshift-user-workload-monitoring
+      data:
+        "config.yaml": |
+          {{ uwm_desired_config | ansible.builtin.to_nice_yaml(indent=2) }}
+    state: present
+  when:
+    - config_baseline.enableUserWorkload

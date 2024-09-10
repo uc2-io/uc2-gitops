@@ -103,6 +103,27 @@ charts:
               - labels:
                   cluster.ocs.openshift.io/openshift-storage: ""
                 name: odf2.alice.lab.uc2.io
+        # Cluster Monitoring Configuration
+        monitoring:
+          name: monitoring
+          path: charts/monitoring
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          values:
+            ansible-runner-job:
+              jobs:
+                - annotations:
+                    argocd.argoproj.io/sync-options: Replace=true
+                  ansible_playbook: ansible/job-sync-cm-config.yaml
+                  ansible_extravars_json: >-
+                    {
+                      "config_baseline": {
+                        "enableUserWorkload": true
+                      },
+                      "use_infra_nodes": true
+                    }
+                  git_branch: infra-node-support
+                  name: sync-cm-config
         # Deploy MetalLB Operator
         metallb-operator:
           annotations:
