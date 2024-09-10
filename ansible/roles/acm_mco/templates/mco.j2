@@ -11,7 +11,7 @@ spec:
   enableDownsampling: false
   imagePullPolicy: Always
   imagePullSecret: {{ mco_pull_secret_name }}
-{% if use_infra_nodes is defined and use_infra_nodes == true %}
+{% if use_infra_nodes | default(false) %}
   nodeSelector:
     node-role.kubernetes.io/infra: ""
 {% endif %}
@@ -28,7 +28,7 @@ spec:
     ruleStorageSize: {{ mco_rules_storage_size }}
     storageClass: {{ mco_storage_class }}
     storeStorageSize: {{ mco_store_storage_size }}
-{% if use_infra_nodes is defined and use_infra_nodes == true %}
+{% if use_infra_nodes | default(false) %}
   tolerations:
     - effect: NoSchedule
       key: node-role.kubernetes.io/infra

@@ -2,15 +2,6 @@
   become: false
   gather_facts: false
   hosts: localhost
-  module_defaults:
-    kubernetes.core.k8s_info:
-      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      host: https://kubernetes.default.svc
-    kubernetes.core.k8s:
-      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      host: https://kubernetes.default.svc
   tasks:
     - name: Assert Extravars
       ansible.builtin.assert:
