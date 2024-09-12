@@ -172,13 +172,14 @@ application-manager:
             name: console-links
             path: charts/console-links
             annotations:
-              argocd.argoproj.io/sync-options: Replace=true
               argocd.argoproj.io/sync-wave: "5"
             values:
               ansible-runner-job:
                 enabled: true
                 jobs:
-                  - ansible_extravars_json: >-
+                  - annotations:
+                      argocd.argoproj.io/sync-options: Replace=true
+                    ansible_extravars_json: >-
                       {
                         "console_links": [
                           {
