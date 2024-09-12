@@ -10,7 +10,7 @@ application-manager:
     prune: true
     selfHeal: true
   charts:
-    # Additional Cluster Configuration Outside of Management Stack
+    # Baseline Cluster Configurations
     cluster-configs:
       name: cluster-configs
       path: charts/application-manager
@@ -26,21 +26,21 @@ application-manager:
         charts:
           # Ansible Runner Configuration
           ansible-runner:
+            name: ansible-runner
             annotations:
               argocd.argoproj.io/sync-wave: "0"
-            name: ansible-runner
             path: charts/ansible-runner
           # Configure OpenShift Internal Image Registry
           registry:
+            name: registry
             annotations:
               argocd.argoproj.io/sync-wave: "0"
-            name: registry
             path: charts/registry
           # Microcert API/Ingress Configuration
           microcert-client:
+            name: microcert-client
             annotations:
               argocd.argoproj.io/sync-wave: "1"
-            name: microcert-client
             path: charts/microcert-client
           # OpenShift OAuth Configuration
           oauth:
@@ -63,6 +63,12 @@ application-manager:
                       - apiGroup: rbac.authorization.k8s.io
                         kind: Group
                         name: cluster-admins
+          # Configure Cluster Monitoring
+          monitoring:
+            name: monitoring
+            path: charts/monitoring
+            annotations:
+              argocd.argoproj.io/sync-wave: "1"
           # Deploy Kubernetes NMState Operator
           nmstate-operator:
             name: nmstate-operator
@@ -166,13 +172,26 @@ application-manager:
             name: console-links
             path: charts/console-links
             annotations:
+              argocd.argoproj.io/sync-options: Replace=true
               argocd.argoproj.io/sync-wave: "5"
             values:
               ansible-runner-job:
                 enabled: true
                 jobs:
                   - ansible_extravars_json: >-
-                      {"console_links":[{"name":"gitops-console-link","route_name":"openshift-gitops-argocd-server","route_namespace":"uc2-openshift-gitops","imageURL":"https://argo-cd.readthedocs.io/en/stable/assets/logo.png","section":"Baseline Applications","location":"ApplicationMenu","text":"Red Hat OpenShift GitOps (Argo CD)"}]}
+                      {
+                        "console_links": [
+                          {
+                            "name": "gitops-console-link",
+                            "route_name": "openshift-gitops-argocd-server",
+                            "route_namespace": "uc2-openshift-gitops",
+                            "imageURL": "https://argo-cd.readthedocs.io/en/stable/assets/logo.png",
+                            "section": "Baseline Applications",
+                            "location": "ApplicationMenu",
+                            "text": "Red Hat OpenShift GitOps (Argo CD)"
+                          }
+                        ]
+                      }
                     ansible_playbook: ansible/job-console-links.yaml
                     git_branch: main
                     name: baseline-console-links

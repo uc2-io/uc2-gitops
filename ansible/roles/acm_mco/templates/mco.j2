@@ -11,6 +11,10 @@ spec:
   enableDownsampling: false
   imagePullPolicy: Always
   imagePullSecret: {{ mco_pull_secret_name }}
+{% if use_infra_nodes | default(false) %}
+  nodeSelector:
+    node-role.kubernetes.io/infra: ""
+{% endif %}
   observabilityAddonSpec:
     enableMetrics: true
     interval: 60
@@ -24,3 +28,12 @@ spec:
     ruleStorageSize: {{ mco_rules_storage_size }}
     storageClass: {{ mco_storage_class }}
     storeStorageSize: {{ mco_store_storage_size }}
+{% if use_infra_nodes | default(false) %}
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+{% endif %}

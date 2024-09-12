@@ -12,5 +12,11 @@ metadata:
     {{- tpl (toYaml .labels) $ | nindent 4 }}
 {{- end }}
   name: {{ .name }}
+{{- if .taints }}
+spec:
+  taints:
+    {{- tpl (toYaml .taints) $ | nindent 4 }}
+{{- else }}
 spec: {}
+{{- end }}
 {{- end }}

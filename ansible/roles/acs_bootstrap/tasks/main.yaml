@@ -66,37 +66,7 @@
 
 - name: Create SecuredCluster Resource for Central
   kubernetes.core.k8s:
-    resource_definition:
-      apiVersion: platform.stackrox.io/v1alpha1
-      kind: SecuredCluster
-      metadata:
-        name: stackrox-secured-cluster-services
-        namespace: stackrox
-      spec:
-        auditLogs:
-          collection: Auto
-        admissionControl:
-          listenOnUpdates: true
-          bypass: BreakGlassAnnotation
-          contactImageScanners: DoNotScanInline
-          listenOnCreates: true
-          timeoutSeconds: 20
-          listenOnEvents: true
-        scanner:
-          analyzer:
-            scaling:
-              autoScaling: Enabled
-              maxReplicas: 5
-              minReplicas: 2
-              replicas: 3
-          scannerComponent: AutoSense
-        perNode:
-          collector:
-            collection: EBPF
-            imageFlavor: Regular
-          taintToleration: TolerateTaints
-        clusterName: "{{ cluster_infrastructure_results.resources[0].status.infrastructureName }}"
-        centralEndpoint: "{{ central_route_host }}:443"
+    resource_definition: "{{ lookup('template', 'templates/securedcluster.j2') | from_yaml }}"
     state: present
 
 - name: Create OpenShift Auth Provider

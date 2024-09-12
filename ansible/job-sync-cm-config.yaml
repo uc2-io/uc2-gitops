@@ -1,0 +1,6 @@
+- name: Configure Cluster Monitoring
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: openshift_monitoring

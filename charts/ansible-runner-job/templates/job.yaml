@@ -27,7 +27,7 @@ spec:
               mkdir -p $GIT_LOCAL_DIRECTORY
               git clone -b $GIT_BRANCH $GIT_URL $GIT_LOCAL_DIRECTORY
               ansible-galaxy collection install -r $GIT_LOCAL_DIRECTORY/$ANSIBLE_COLLECTION_REQUIREMENTS
-              ansible-playbook $GIT_LOCAL_DIRECTORY/$ANSIBLE_PLAYBOOK{{ if .ansible_extravars_json }} -e '{{ .ansible_extravars_json }}'{{ end }}
+              ansible-playbook $GIT_LOCAL_DIRECTORY/$ANSIBLE_PLAYBOOK{{ if .ansible_extravars_json }} -e '{{ .ansible_extravars_json | fromJson | toJson }}'{{ end }}{{ if $.Values.global.use_infra_nodes }} -e use_infra_nodes=true{{ end }}
           env:
             - name: ANSIBLE_COLLECTION_REQUIREMENTS
               value: "{{ .collection_requirements | default $.Values.job_collection_requirements }}"

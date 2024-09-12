@@ -13,12 +13,31 @@ metadata:
   name: {{ $.Values.central_name }}
   namespace: {{ $.Values.central_namespace }}
 spec:
-  monitoring:
-    openshift:
-      enabled: true
   central:
-    notifierSecretsEncryption:
-      enabled: false
+    db:
+      isEnabled: Default
+      {{- if $.Values.global.use_infra_nodes }}
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      {{- end }}
+      persistence:
+        persistentVolumeClaim:
+          claimName: {{ $.Values.central_db_claim_name }}
+          size: {{ $.Values.central_db_claim_size }}
+          storageClassName: {{ $.Values.central_db_claim_storage_class }}
+      {{- if $.Values.global.use_infra_nodes }}
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+          value: reserved
+        - effect: NoExecute
+          key: node-role.kubernetes.io/infra
+          value: reserved
+      {{- end }}
+    {{- if $.Values.central_tls_secret_name }}
+    defaultTLSSecret:
+      name: {{ $.Values.central_tls_secret_name }}
+    {{- end }}
     exposure:
       loadBalancer:
         enabled: false
@@ -29,21 +48,115 @@ spec:
         {{- if $.Values.central_route_host }}
         host: {{ $.Values.central_route_host }}
         {{- end }}
-    {{- if $.Values.central_tls_secret_name }}
-    defaultTLSSecret:
-      name: {{ $.Values.central_tls_secret_name }}
-    {{- end }}
+    notifierSecretsEncryption:
+      enabled: false
     telemetry:
       enabled: true
-    db:
-      isEnabled: Default
-      persistence:
-        persistentVolumeClaim:
-          claimName: {{ $.Values.central_db_claim_name }}
-          size: {{ $.Values.central_db_claim_size }}
-          storageClassName: {{ $.Values.central_db_claim_storage_class }}
+    {{- if $.Values.global.use_infra_nodes }}
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+    {{- end }}
   egress:
     connectivityPolicy: Online
+  monitoring:
+    openshift:
+      enabled: true
+  scannerV4:
+    db:
+      {{- if $.Values.global.use_infra_nodes }}
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      {{- end }}
+      persistence:
+        persistentVolumeClaim:
+          claimName: {{ $.Values.scanner_v4_db_claim_name }}
+          size: {{ $.Values.scanner_v4_db_claim_size }}
+          storageClassName: {{ $.Values.scanner_v4_db_claim_storage_class }}
+      {{- if $.Values.global.use_infra_nodes }}
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+          value: reserved
+        - effect: NoExecute
+          key: node-role.kubernetes.io/infra
+          value: reserved
+      {{- end }}
+    indexer:
+      {{- if $.Values.global.use_infra_nodes }}
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      {{- end }}
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3
+      {{- if $.Values.global.use_infra_nodes }}
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+          value: reserved
+        - effect: NoExecute
+          key: node-role.kubernetes.io/infra
+          value: reserved
+      {{- end }}
+    matcher:
+      {{- if $.Values.global.use_infra_nodes }}
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      {{- end }}
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3
+      {{- if $.Values.global.use_infra_nodes }}
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+          value: reserved
+        - effect: NoExecute
+          key: node-role.kubernetes.io/infra
+          value: reserved
+      {{- end }}
+    scannerComponent: Enabled
+  scanner:
+    analyzer:
+      {{- if $.Values.global.use_infra_nodes }}
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      {{- end }}
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3
+      {{- if $.Values.global.use_infra_nodes }}
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+          value: reserved
+        - effect: NoExecute
+          key: node-role.kubernetes.io/infra
+          value: reserved
+      {{- end }}
+    {{- if $.Values.global.use_infra_nodes }}
+    db:
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+          value: reserved
+        - effect: NoExecute
+          key: node-role.kubernetes.io/infra
+          value: reserved
+    {{- end }}
   {{- if $.Values.central_tls_additional_ca }}
   tls:
     additionalCAs:
@@ -51,30 +164,3 @@ spec:
           {{- $.Values.central_tls_additional_ca | nindent 10 }}
         name: ca-bundle.crt
   {{- end }}
-  scannerV4:
-    db:
-      persistence:
-        persistentVolumeClaim:
-          claimName: {{ $.Values.scanner_v4_db_claim_name }}
-          size: {{ $.Values.scanner_v4_db_claim_size }}
-          storageClassName: {{ $.Values.scanner_v4_db_claim_storage_class }}
-    indexer:
-      scaling:
-        autoScaling: Enabled
-        maxReplicas: 5
-        minReplicas: 2
-        replicas: 3
-    matcher:
-      scaling:
-        autoScaling: Enabled
-        maxReplicas: 5
-        minReplicas: 2
-        replicas: 3
-    scannerComponent: Enabled
-  scanner:
-    analyzer:
-      scaling:
-        autoScaling: Enabled
-        maxReplicas: 5
-        minReplicas: 2
-        replicas: 3

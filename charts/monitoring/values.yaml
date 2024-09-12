@@ -1,0 +1,8 @@
+---
+ansible-runner-job:
+  jobs:
+    - annotations:
+        argocd.argoproj.io/sync-options: Replace=true
+      ansible_playbook: ansible/job-sync-cm-config.yaml
+      git_branch: main
+      name: sync-cm-config

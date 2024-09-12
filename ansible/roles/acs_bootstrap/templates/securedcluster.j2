@@ -1,0 +1,55 @@
+apiVersion: platform.stackrox.io/v1alpha1
+kind: SecuredCluster
+metadata:
+  name: stackrox-secured-cluster-services
+  namespace: stackrox
+spec:
+  auditLogs:
+    collection: Auto
+  admissionControl:
+    bypass: BreakGlassAnnotation
+    contactImageScanners: DoNotScanInline
+    listenOnCreates: true
+    listenOnEvents: true
+    listenOnUpdates: true
+{% if use_infra_nodes | default(false) %}
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+{% endif %}
+    timeoutSeconds: 20
+{% if use_infra_nodes | default(false) %}
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+{% endif %}
+  centralEndpoint: "{{ central_route_host }}:443"
+  clusterName: "{{ cluster_infrastructure_results.resources[0].status.infrastructureName }}"
+  perNode:
+    collector:
+      collection: EBPF
+      imageFlavor: Regular
+    taintToleration: TolerateTaints
+  scanner:
+    analyzer:
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3
+    scannerComponent: AutoSense
+{% if use_infra_nodes | default(false) %}
+  sensor:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+      - effect: NoExecute
+        key: node-role.kubernetes.io/infra
+        value: reserved
+{% endif %}

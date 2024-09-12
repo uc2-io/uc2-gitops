@@ -8,8 +8,21 @@ spec:
   defaultRoute: {{ $.Values.registry_default_route }}
   logLevel: {{ $.Values.registry_log_level }}
   managementState: {{ $.Values.registry_management_state }}
+  {{- if $.Values.global.use_infra_nodes }}
+  nodeSelector:
+    node-role.kubernetes.io/infra: ""
+  {{- end }}
   operatorLogLevel: {{ $.Values.registry_operator_log_level }}
   replicas: {{ $.Values.registry_replicas }}
   rolloutStrategy: {{ $.Values.registry_rollout_strategy }}
   storage:
     {{- tpl (toYaml $.Values.registry_storage_config) $ | nindent 4 }}
+  {{- if $.Values.global.use_infra_nodes }}
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+  {{- end }}

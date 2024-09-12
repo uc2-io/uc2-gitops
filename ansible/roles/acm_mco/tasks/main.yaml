@@ -61,10 +61,7 @@
 
 - name: Query ACM Observability OBC Secret
   kubernetes.core.k8s_info:
-    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
     api_version: v1
-    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    host: https://kubernetes.default.svc
     kind: Secret
     name: "{{ mco_obc_name }}"
     namespace: "{{ mco_obc_namespace }}"
@@ -72,16 +69,14 @@
 
 - name: Create ACM Observability Thanos Config
   kubernetes.core.k8s:
-    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     resource_definition: "{{ lookup('template', 'templates/thanos-secret.j2') | from_yaml }}"
-    host: https://kubernetes.default.svc
     state: present
+
+- name: Debug
+  ansible.builtin.debug:
+    msg: "{{ lookup('template', 'templates/mco.j2') | from_yaml }}"
 
 - name: Create ACM Observability
   kubernetes.core.k8s:
-    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     resource_definition: "{{ lookup('template', 'templates/mco.j2') | from_yaml }}"
-    host: https://kubernetes.default.svc
     state: present

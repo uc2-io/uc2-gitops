@@ -1,0 +1,19 @@
+{{- if $.Values.global.use_infra_nodes }}
+{{- range $.Values.managed_cluster_addons }}
+---
+apiVersion: addon.open-cluster-management.io/v1alpha1
+kind: ManagedClusterAddOn
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true,SkipDryRunOnMissingResource=true
+  name: {{ . }}
+  namespace: local-cluster
+spec:
+  configs:
+    - group: addon.open-cluster-management.io
+      resource: addondeploymentconfigs
+      namespace: local-cluster
+      name: local-cluster
+  installNamespace: open-cluster-management-agent-addon
+{{- end }}
+{{- end }}

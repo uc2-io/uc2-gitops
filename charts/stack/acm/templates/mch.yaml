@@ -17,6 +17,10 @@ spec:
   enableClusterBackup: {{ $.Values.mch_enable_cluster_backup }}
   imagePullSecret: {{ $.Values.mch_pull_secret_name }}
   ingress: {}
+  {{- if $.Values.global.use_infra_nodes }}
+  nodeSelector:
+    node-role.kubernetes.io/infra: ""
+  {{- end }}
   overrides:
     components:
       - enabled: true
@@ -44,3 +48,12 @@ spec:
       - enabled: false
         name: cluster-backup
   separateCertificateManagement: {{ $.Values.mch_separate_certificate_management }}
+  {{- if $.Values.global.use_infra_nodes }}
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+  {{- end }}

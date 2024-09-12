@@ -2,15 +2,6 @@
   become: false
   gather_facts: false
   hosts: localhost
-  module_defaults:
-    kubernetes.core.k8s_info:
-      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      host: https://kubernetes.default.svc
-    kubernetes.core.k8s:
-      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      host: https://kubernetes.default.svc
   tasks:
     - name: Query Lock
       kubernetes.core.k8s_info:
@@ -106,12 +97,41 @@
             api_version: operator.openshift.io/v1
             definition:
               spec:
+                replicas: 3
                 defaultCertificate:
                   name: microcert-ingress-tls-keypair
             kind: IngressController
             name: default
             namespace: openshift-ingress-operator
             state: patched
+          when:
+            - not (use_infra_nodes | default(false))
+
+        - name: Patch Ingress Controller with Infrastructure Node Support
+          kubernetes.core.k8s:
+            api_version: operator.openshift.io/v1
+            definition:
+              spec:
+                replicas: 3
+                defaultCertificate:
+                  name: microcert-ingress-tls-keypair
+                nodePlacement:
+                  nodeSelector:
+                    matchLabels:
+                      node-role.kubernetes.io/infra: ""
+                  tolerations:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/infra
+                      value: reserved
+                    - effect: NoExecute
+                      key: node-role.kubernetes.io/infra
+                      value: reserved
+            kind: IngressController
+            name: default
+            namespace: openshift-ingress-operator
+            state: patched
+          when:
+            - use_infra_nodes | default(false)
 
         - name: Patch APIServer
           kubernetes.core.k8s:

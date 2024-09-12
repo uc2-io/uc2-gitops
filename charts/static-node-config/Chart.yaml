@@ -3,7 +3,7 @@ dependencies:
   - name: common
     version: 0.1.0
     repository: file://../common
-description: Apply Custom Labels to Staic Node Definitions
-name: static-node-label
+description: Apply Custom Labels/Annotations and Taints to Node Resource
+name: static-node-config
 type: application
 version: 0.1.0

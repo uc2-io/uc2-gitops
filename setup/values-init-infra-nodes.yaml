@@ -1,0 +1,27 @@
+---
+# OpenShift GitOps
+config:
+  env:
+    - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+      value: uc2-openshift-gitops
+    - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
+      value: 'true'
+  nodeSelector:
+    node-role.kubernetes.io/infra: ""
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved
+    - effect: NoExecute
+      key: node-role.kubernetes.io/infra
+      value: reserved
+namespaces:
+  - name: uc2-openshift-gitops
+operator:
+  channel: latest
+  installPlanApproval: Automatic
+  name: openshift-gitops-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+operatorgroup:
+  create: false

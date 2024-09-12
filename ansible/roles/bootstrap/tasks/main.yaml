@@ -17,6 +17,20 @@
     values_files:
       - "{{ role_path }}/{{ bootstrap_values_file }}"
   register: results_helm_gitops_operator
+  when:
+    - not (global_use_infra_nodes | default(false))
+
+- name: Deploy OpenShift Gitops Operator on Infrastructure Nodes
+  kubernetes.core.helm:
+    chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/operator"
+    dependency_update: true
+    release_name: "{{ bootstrap_operator_release_name }}"
+    release_namespace: "{{ bootstrap_operator_release_namespace }}"
+    values_files:
+      - "{{ role_path }}/{{ bootstrap_values_file_infra_nodes }}"
+  register: results_helm_gitops_operator
+  when:
+    - global_use_infra_nodes | default(false)
 
 - name: Wait for argocds.argoproj.io CRD
   kubernetes.core.k8s_info:
@@ -30,13 +44,16 @@
     - crd_results.resources is defined
     - crd_results.resources | length == 1
 
-- name: Deploy Argo CD Using OpenShift Gitops Operator
+- name: Deploy Argo CD Using OpenShift GitOps Operator # noqa: jinja[spacing]
   kubernetes.core.helm:
     chart_ref: "{{ role_path }}/{{ bootstrap_charts_relative_path }}/argocd"
     create_namespace: true
     dependency_update: true
     release_name: "{{ bootstrap_argocd_release_name }}"
     release_namespace: "{{ bootstrap_release_namespace }}"
+    set_values:
+      - value: "global.baseline_disable_charts={ {{- global_baseline_disable_charts | default([]) | join(',') -}} }"
+      - value: "global.use_infra_nodes={{ global_use_infra_nodes | default(false) }}"
     values_files:
       - "{{ role_path }}/{{ bootstrap_values_file }}"
 
@@ -63,6 +80,8 @@
     dependency_update: true
     release_name: bootstrap
     release_namespace: "{{ bootstrap_release_namespace }}"
+    set_values:
+      - value: "global.use_infra_nodes={{ global_use_infra_nodes | default(false) }}"
     values_files:
       - "{{ role_path }}/{{ bootstrap_baseline_values_file }}"
   when:
@@ -76,6 +95,7 @@
     release_namespace: "{{ bootstrap_release_namespace }}"
     set_values:
       - value: "global.baseline_disable_charts={ {{- global_baseline_disable_charts | join(',') -}} }"
+      - value: "global.use_infra_nodes={{ global_use_infra_nodes | default(false) }}"
     values_files:
       - "{{ role_path }}/{{ bootstrap_baseline_values_file }}"
   when:
