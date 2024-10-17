@@ -1,0 +1,6 @@
+---
+forkliftControllerFeatureUIPlugin: 'true'
+forkliftControllerFeatureValidation: 'true'
+forkliftControllerFeatureVolumePopulator: 'true'
+forkliftControllerName: forklift-controller
+forkliftControllerNamespace: openshift-mtv
