@@ -1,0 +1,11 @@
+apiVersion: forklift.konveyor.io/v1beta1
+kind: ForkliftController
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ .Values.forkliftControllerName }}
+  namespace: {{ .Values.forkliftControllerNamespace }}
+spec:
+  feature_ui_plugin: '{{ .Values.forkliftControllerFeatureUIPlugin }}'
+  feature_validation: '{{ .Values.forkliftControllerFeatureValidation }}'
+  feature_volume_populator: '{{ .Values.forkliftControllerFeatureVolumePopulator }}'

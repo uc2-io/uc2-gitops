@@ -127,6 +127,24 @@ resourceHealthChecks:
       if obj.status ~= nil then
         if obj.status.conditions ~= nil then
           for i, condition in ipairs(obj.status.conditions) do
+            if condition.type == "Successful" and condition.status == "True" then
+              hs.message = condition.message
+              hs.status = "Healthy"
+              return hs
+            end
+          end
+        end
+      end
+      hs.message = "Waiting for condition Successful"
+      hs.status = "Progressing"
+      return hs
+    group: forklift.konveyor.io
+    kind: ForkliftController
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
             if condition.type == "Available" and condition.status == "True" then
               hs.message = condition.message
               hs.status = "Healthy"
