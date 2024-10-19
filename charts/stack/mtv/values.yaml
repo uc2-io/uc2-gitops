@@ -4,3 +4,22 @@ forkliftControllerFeatureValidation: 'true'
 forkliftControllerFeatureVolumePopulator: 'true'
 forkliftControllerName: forklift-controller
 forkliftControllerNamespace: openshift-mtv
+vddkBuildConfigAnnotations:
+  argocd.argoproj.io/sync-wave: "-2"
+vddkBuildConfigName: vddk
+vddkBuildConfigNamespace: openshift-mtv
+vddkBuildConfigDockerfile: |-
+  FROM registry.access.redhat.com/ubi9/ubi-minimal
+  USER 0
+  RUN mkdir -p /opt && \
+    microdnf update -y && \
+    microdnf install tar gzip -y && \
+    curl -O http://bastion.warden.lab.uc2.io:8080/VMware-vix-disklib-8.0.3-23950268.x86_64.tar.gz && \
+    tar xzvf VMware-vix-disklib-8.0.3-23950268.x86_64.tar.gz -C /
+  USER 1001
+  ENTRYPOINT ["cp", "-r", "/vmware-vix-disklib-distrib", "/opt"]
+vddkImageStreamAnnotations:
+  argocd.argoproj.io/sync-wave: "-2"
+vddkImageStreamName: vddk
+vddkImageStreamNamespace: openshift-mtv
+vddkImageStreamTagName: vddk:latest

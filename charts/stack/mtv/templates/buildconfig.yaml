@@ -1,0 +1,32 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+{{- if .Values.vddkBuildConfigAnnotations }}
+  annotations:
+    {{- tpl (toYaml .Values.vddkBuildConfigAnnotations) $ | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ .Values.vddkBuildConfigName }}
+  namespace: {{ .Values.vddkBuildConfigNamespace }}
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{ .Values.vddkImageStreamTagName }}
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    dockerfile: |
+      {{- .Values.vddkBuildConfigDockerfile | nindent 6 }}
+    type: Dockerfile
+  strategy:
+    dockerStrategy:
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/ubi9/ubi-minimal
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+    - type: ConfigChange
