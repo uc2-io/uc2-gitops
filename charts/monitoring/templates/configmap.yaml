@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+data:
+  purpose: |
+    Ignore this ConfigMap. It is used to enable a Sync hook in Argo CD.
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: empty-config-map
+  namespace: openshift-monitoring

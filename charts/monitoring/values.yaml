@@ -1,8 +1,18 @@
 ---
 ansible-runner-job:
+  enabled: true
   jobs:
     - annotations:
+        argocd.argoproj.io/hook: Sync
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
         argocd.argoproj.io/sync-options: Replace=true
       ansible_playbook: ansible/job-sync-cm-config.yaml
+      ansible_extravars_json: >-
+        {
+          "config_baseline": {
+            "enableUserWorkload": false
+          },
+          "use_infra_nodes": false
+        }
       git_branch: main
       name: sync-cm-config

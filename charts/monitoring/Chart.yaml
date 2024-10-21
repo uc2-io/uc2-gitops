@@ -1,11 +1,13 @@
+---
 apiVersion: v2
 dependencies:
-  - name: ansible-runner-job
-    version: 0.1.0
+  - condition: ansible-runner-job.enabled,global.ansible-runner-job.enabled
+    name: ansible-runner-job
     repository: file://../ansible-runner-job
-  - name: common
     version: 0.1.0
+  - name: common
     repository: file://../common
+    version: 0.1.0
 description: OpenShift Cluster Monitoring Configuration
 name: monitoring
 type: application
