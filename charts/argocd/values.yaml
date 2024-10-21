@@ -125,6 +125,24 @@ resourceHealthChecks:
   - check: |
       hs = {}
       if obj.status ~= nil then
+        if obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
+            if condition.category == "Required" and condition.status ~= "True" then
+              hs.message = condition.message
+              hs.status = "Progressing"
+              return hs
+            end
+          end
+        end
+      end
+      hs.message = "All required conditions met"
+      hs.status = "Healthy"
+      return hs
+    group: forklift.konveyor.io
+    kind: Provider
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
         if obj.status.phase ~= nil then
           if obj.status.phase == "Complete" then
             hs.status = "Healthy"

@@ -4,6 +4,19 @@ forkliftControllerFeatureValidation: 'true'
 forkliftControllerFeatureVolumePopulator: 'true'
 forkliftControllerName: forklift-controller
 forkliftControllerNamespace: openshift-mtv
+mtvProviders:
+  - annotations:
+      argocd.argoproj.io/sync-wave: "2"
+    name: uc2-vcenter
+    namespace: openshift-mtv
+    secret:
+      name: uc2-vcenter-credentials
+      namespace: openshift-mtv
+    settings:
+      sdkEndpoint: vcenter
+      vddkInitImage: image-registry.openshift-image-registry.svc:5000/openshift-mtv/vddk:latest
+    type: vsphere
+    url: https://vsphere.lab.uc2.io/sdk
 vddkBuildConfigAnnotations:
   argocd.argoproj.io/sync-wave: "-2"
 vddkBuildConfigName: vddk
