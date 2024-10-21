@@ -111,8 +111,11 @@ charts:
             argocd.argoproj.io/sync-wave: "1"
           values:
             ansible-runner-job:
+              enabled: true
               jobs:
                 - annotations:
+                    argocd.argoproj.io/hook: Sync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
                     argocd.argoproj.io/sync-options: Replace=true
                   ansible_playbook: ansible/job-sync-cm-config.yaml
                   ansible_extravars_json: >-
@@ -560,7 +563,11 @@ charts:
             ansible-runner-job:
               enabled: true
               jobs:
-                - ansible_playbook: ansible/job-sync-acm-infra-node.yaml
+                - annotations:
+                    argocd.argoproj.io/hook: Sync
+                    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+                    argocd.argoproj.io/sync-options: Replace=true
+                  ansible_playbook: ansible/job-sync-acm-infra-node.yaml
                   git_branch: main
                   name: sync-acm-infra-node
                 - annotations:
