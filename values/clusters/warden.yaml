@@ -8,6 +8,8 @@ common:
   destinationNamespace: uc2-openshift-gitops
   prune: true
   selfHeal: true
+global:
+  use_infra_nodes: false
 charts:
   # Cluster Specific Configuration
   stack-apps:
@@ -92,50 +94,6 @@ charts:
             operatorgroup:
               clusterScope: false
               create: true
-        # Deploy Kubernetes NMState Operator
-        nmstate-operator:
-          name: nmstate-operator
-          path: charts/operator
-          annotations:
-            argocd.argoproj.io/sync-wave: "1"
-          destinationNamespace: openshift-nmstate
-          values:
-            namespace:
-              enabled: true
-              namespaces:
-                - name: openshift-nmstate
-            operator:
-              channel: stable
-              installPlanApproval: Automatic
-              name: kubernetes-nmstate-operator
-              source: redhat-operators
-              sourceNamespace: openshift-marketplace
-            operatorgroup:
-              clusterScope: false
-              create: true
-        # Deploy Quay Operator
-        quay-operator:
-          name: quay-operator
-          path: charts/operator
-          annotations:
-            argocd.argoproj.io/sync-wave: "1"
-          destinationNamespace: openshift-operators
-          values:
-            namespace:
-              enabled: true
-              namespaces:
-                - annotations:
-                    openshift.io/node-selector: "stack.apps.uc2.io/quay="
-                  name: quay-enterprise
-            operator:
-              channel: stable-3.11
-              installPlanApproval: Automatic
-              name: quay-operator
-              source: redhat-operators
-              sourceNamespace: openshift-marketplace
-            operatorgroup:
-              clusterScope: true
-              create: false
         # Deploy OpenShift Virtualization Operator
         cnv-operator:
           name: cnv-operator
@@ -156,6 +114,31 @@ charts:
               channel: stable
               installPlanApproval: Automatic
               name: kubevirt-hyperconverged
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+            operatorgroup:
+              clusterScope: false
+              create: true
+        # Deploy Migration Toolkit for VIrtualization Operator
+        mtv-operator:
+          name: mtv-operator
+          path: charts/operator
+          annotations:
+            argocd.argoproj.io/sync-wave: "1"
+          destinationNamespace: openshift-mtv
+          values:
+            config:
+              nodeSelector:
+                stack.apps.uc2.io/cnv-infra: ""
+            namespace:
+              enabled: true
+              namespaces:
+                - name: openshift-mtv
+                  skip_common_labels: true
+            operator:
+              channel: release-v2.7
+              installPlanApproval: Automatic
+              name: mtv-operator
               source: redhat-operators
               sourceNamespace: openshift-marketplace
             operatorgroup:
@@ -207,12 +190,14 @@ charts:
             operatorgroup:
               clusterScope: false
               create: true
-        # Deploy NMState Singleton
-        nmstate:
-          name: nmstate
-          path: charts/nmstate
+        # Deploy NNCP For Virtrual Workloads
+        nncp:
+          name: nmstate-nncp
+          path: charts/nncp
           annotations:
-            argocd.argoproj.io/sync-wave: "2"
+            argocd.argoproj.io/sync-wave: "3"
+          valueFiles:
+            - ../../values/clusters/files/warden/virt-networking.yaml
         # Deploy Local Volume Set for OpenShift Data Foundation (OSD)
         odf-lvs-osd:
           name: odf-lvs-osd
@@ -237,8 +222,41 @@ charts:
           annotations:
             argocd.argoproj.io/sync-wave: "4"
           destinationNamespace: openshift-storage
-          valueFiles:
-            - ../../../values/clusters/files/warden/odf-storagecluster.yaml
+          values:
+            ansible-runner-job:
+              enabled: true
+              jobs:
+                - annotations:
+                    argocd.argoproj.io/hook: PreSync
+                    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+                  ansible_extravars_json: >-
+                    {
+                      "lvs_expected_pv_count": 3,
+                      "lvs_name": "odf-osd-localvolumeset",
+                      "lvs_namespace": "openshift-local-storage",
+                      "lvs_storageclass": "odf-osd-localvolumeset"
+                    }
+                  ansible_playbook: ansible/job-prehook-validate-lvs.yaml
+                  git_branch: main
+                  name: prehook-validate-lvs
+                - annotations:
+                    argocd.argoproj.io/hook: PostSync
+                    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+                  ansible_extravars_json: >-
+                    {
+                      "additional_plugins": [
+                        "odf-console"
+                      ]
+                    }
+                  ansible_playbook: ansible/job-posthook-console-plugin.yaml
+                  git_branch: main
+                  name: posthook-odf-console-plugin
+            storagecluster_enabledefaultstorageclass: true
+            storagecluster_multus_enable: false
+            storagecluster_storage: 1000Gi
+            storagecluster_storageclass: odf-osd-localvolumeset
+            storagecluster_use_localstorage: true
+            storagecluster_version: "4.16.0"
         # Configure OpenShift Internal Image Registry
         registry:
           annotations:
@@ -254,4 +272,11 @@ charts:
           path: charts/stack/cnv
           annotations:
             argocd.argoproj.io/sync-wave: "6"
+          destinationNamespace: openshift-cnv
+        # Deploy Migration Toolkit for Virtualization
+        mtv:
+          name: mtv
+          path: charts/stack/mtv
+          annotations:
+            argocd.argoproj.io/sync-wave: "7"
           destinationNamespace: openshift-cnv

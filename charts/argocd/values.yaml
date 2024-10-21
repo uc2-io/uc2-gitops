@@ -127,6 +127,87 @@ resourceHealthChecks:
       if obj.status ~= nil then
         if obj.status.conditions ~= nil then
           for i, condition in ipairs(obj.status.conditions) do
+            if condition.category == "Required" and condition.status ~= "True" then
+              hs.message = condition.message
+              hs.status = "Progressing"
+              return hs
+            end
+          end
+        end
+      end
+      hs.message = "All required conditions met"
+      hs.status = "Healthy"
+      return hs
+    group: forklift.konveyor.io
+    kind: Provider
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.phase ~= nil then
+          if obj.status.phase == "Complete" then
+            hs.status = "Healthy"
+            hs.message = obj.status.phase
+            return hs
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for Build to complete"
+      return hs
+    group: build.openshift.io
+    kind: Build
+  - check: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = ""
+      if obj.status ~= nil then
+        if obj.status.tags ~= nil then
+          numTags = 0
+          for _ , item in pairs(obj.status.tags) do
+            numTags = numTags + 1
+            numItems = 0
+            if item.tags ~= nil then
+              for _ , item in pairs(item.tags) do
+                numItems = numItems + 1
+              end
+              if numItems == 0 then
+                return hs
+              end
+            end
+          end
+          if numTags > 0 then
+            hs.status = "Healthy"
+            hs.message = "ImageStream has tags resolved"
+            return hs
+          end
+        end
+      end
+      return hs
+    group: image.openshift.io
+    kind: ImageStream
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
+            if condition.type == "Successful" and condition.status == "True" then
+              hs.message = condition.message
+              hs.status = "Healthy"
+              return hs
+            end
+          end
+        end
+      end
+      hs.message = "Waiting for condition Successful"
+      hs.status = "Progressing"
+      return hs
+    group: forklift.konveyor.io
+    kind: ForkliftController
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
             if condition.type == "Available" and condition.status == "True" then
               hs.message = condition.message
               hs.status = "Healthy"

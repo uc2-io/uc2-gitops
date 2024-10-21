@@ -1,0 +1,22 @@
+{{- range .Values.mtvProviders }}
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Provider
+metadata:
+{{- if .annotations }}
+  annotations:
+    {{- tpl (toYaml .annotations) $ | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+  secret:
+    name: {{ .secret.name }}
+    namespace: {{ .secret.namespace }}
+  settings:
+    sdkEndpoint: {{ .settings.sdkEndpoint }}
+    vddkInitImage: {{ .settings.vddkInitImage }}
+  type: {{ .type }}
+  url: {{ .url }}
+{{- end }}
