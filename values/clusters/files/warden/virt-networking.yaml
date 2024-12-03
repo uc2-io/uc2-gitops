@@ -35,6 +35,7 @@ policies:
           state: up
           type: ethernet
         - bridge:
+            allow-extra-patch-ports: true
             options:
               stp: true
             port:
