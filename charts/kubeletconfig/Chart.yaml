@@ -1,8 +1,13 @@
+---
 apiVersion: v2
 dependencies:
   - name: common
-    version: 0.1.0
     repository: file://../common
+    version: 0.1.0
+  - condition: ansible-runner-job.enabled,global.ansible-runner-job.enabled
+    name: ansible-runner-job
+    repository: file://../ansible-runner-job
+    version: 0.1.0
 description: Wrapper for KubeletConfig CR
 name: kubeletconfig
 type: application
