@@ -125,6 +125,26 @@ resourceHealthChecks:
   - check: |
       hs = {}
       if obj.status ~= nil then
+        if obj.status.ready ~= nil then
+          if obj.status.conditions ~= nil then
+            for i, condition in ipairs(obj.status.conditions) do
+              if (condition.type == "ResourcesAvailable" and condition.status ~= "True") or obj.status.ready ~= true then
+                hs.message = condition.message
+                hs.status = "Progressing"
+                return hs
+              end
+            end
+          end
+        end
+      end
+      hs.message = "All required conditions met"
+      hs.status = "Healthy"
+      return hs
+    group: lvm.topolvm.io
+    kind: LVMCluster
+  - check: |
+      hs = {}
+      if obj.status ~= nil then
         if obj.status.conditions ~= nil then
           for i, condition in ipairs(obj.status.conditions) do
             if condition.category == "Required" and condition.status ~= "True" then
