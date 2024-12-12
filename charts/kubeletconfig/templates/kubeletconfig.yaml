@@ -1,0 +1,23 @@
+---
+{{- $machineConfigPoolSelector := .Values.machineConfigPoolSelector | required "machineConfigPoolSelector is required." }}
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ .Values.kubeletConfigName }}
+spec:
+  autoSizingReserved: {{ .Values.autoSizingReserved }}
+  {{- if .Values.kubeletConfig }}
+  kubeletConfig:
+    {{-  tpl (toYaml .Values.kubeletConfig) . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.logLevel }}
+  logLevel: {{ .Values.logLevel }}
+  {{- end }}
+  machineConfigPoolSelector:
+    {{- tpl (toYaml $machineConfigPoolSelector) . | nindent 4 }}
+  {{- if .Values.tlsSecurityProfile }}
+  tlsSecurityProfile:
+    {{- tpl (toYaml .Values.tlsSecurityProfile) . | nindent 6 }}
+  {{- end }}
