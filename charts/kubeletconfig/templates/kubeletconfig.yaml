@@ -1,11 +1,13 @@
 ---
+{{- $kubeletConfigName := .Values.kubeletConfigName | required "kubeletConfigName is required." }}
 {{- $machineConfigPoolSelector := .Values.machineConfigPoolSelector | required "machineConfigPoolSelector is required." }}
 apiVersion: machineconfiguration.openshift.io/v1
 kind: KubeletConfig
 metadata:
   labels:
     {{- include "common.labels.labels" $ | nindent 4 }}
-  name: {{ .Values.kubeletConfigName }}
+  name: {{ $kubeletConfigName }}
+  namespace: openshift-machine-config-operator
 spec:
   autoSizingReserved: {{ .Values.autoSizingReserved }}
   {{- if .Values.kubeletConfig }}
