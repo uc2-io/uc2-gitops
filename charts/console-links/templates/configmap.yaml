@@ -1,0 +1,8 @@
+apiVersion: v1
+data: {}
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ .Values.dummy_configmap_name }}
+  namespace: {{ .Values.dummy_configmap_namespace }}
