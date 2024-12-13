@@ -16,7 +16,7 @@ rbac:
         - apiGroups:
             - machineconfiguration.openshift.io
           resources:
-            - machineconfigs
+            - machineconfigpools
           verbs:
             - get
             - list
