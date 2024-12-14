@@ -7,4 +7,3 @@ workerConfig:
   configData: |
     core:
       sleepInterval: 60s
-    sources: [all]
