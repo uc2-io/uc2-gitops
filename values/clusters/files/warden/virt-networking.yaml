@@ -31,7 +31,7 @@ policies:
             enabled: false
           ipv6:
             enabled: false
-          name: enp8s0
+          name: ens1f0np0
           state: up
           type: ethernet
         - bridge:
@@ -53,4 +53,4 @@ policies:
             state: present
     name: ovs-br1-metal
     nodeSelector:
-      nmstate.apps.uc2.io/metal: ''
+      node-role.kubernetes.io/control-plane: ''
