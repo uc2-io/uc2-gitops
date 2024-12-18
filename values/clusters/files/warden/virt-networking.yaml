@@ -39,7 +39,7 @@ policies:
             options:
               stp: true
             port:
-              - name: enp8s0
+              - name: ens1f0np0
           name: ovs-br1
           state: up
           type: ovs-bridge
