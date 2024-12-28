@@ -1,0 +1,33 @@
+---
+{{- $machineConfigName := .Values.machineConfigName | required "machineConfigName is required." }}
+{{- $nodeRole := .Values.nodeRole | required "nodeRole is required." }}
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+    machineconfiguration.openshift.io/role: {{ $nodeRole }}
+  name: {{ $machineConfigName }}
+spec:
+  {{- if .Values.baseOSExtensionsContainerImage }}
+  baseOSExtensionsContainerImage: {{ .Values.baseOSExtensionsContainerImage }}
+  {{- end }}
+  {{- if .Values.config }}
+  config:
+    {{- tpl (toYaml .Values.config) . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.extensions }}
+  extensions:
+    {{- tpl (toYaml .Values.extensions) . | nindent 4 }}
+  {{- end }}
+  fips: {{ .Values.fips }}
+  {{- if .Values.kernelArguments }}
+  kernelArguments:
+    {{- tpl (toYaml .Values.kernelArguments) . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.kernelType }}
+  kernelType: {{ .Values.kernelType }}
+  {{- end }}
+  {{- if .Values.osImageURL }}
+  osImageURL: {{ .Values.osImageURL }}
+  {{- end }}
