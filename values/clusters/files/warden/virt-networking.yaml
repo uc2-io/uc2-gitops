@@ -57,7 +57,7 @@ policies:
   - desiredState:
       interfaces:
         - ipv4:
-            addresses:
+            address:
               - ip: 172.16.90.31
                 prefix-length: 24
             dhcp: false
@@ -73,7 +73,7 @@ policies:
   - desiredState:
       interfaces:
         - ipv4:
-            addresses:
+            address:
               - ip: 172.16.90.32
                 prefix-length: 24
             dhcp: false
@@ -89,7 +89,7 @@ policies:
   - desiredState:
       interfaces:
         - ipv4:
-            addresses:
+            address:
               - ip: 172.16.90.33
                 prefix-length: 24
             dhcp: false
