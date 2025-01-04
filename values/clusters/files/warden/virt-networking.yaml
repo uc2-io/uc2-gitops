@@ -54,3 +54,51 @@ policies:
     name: ovs-br1-metal
     nodeSelector:
       node-role.kubernetes.io/control-plane: ''
+  - desiredState:
+      interfaces:
+        - ipv4:
+            addresses:
+              - ip: 172.16.90.31
+                prefix-length: 24
+            dhcp: false
+            enabled: true
+          ipv6:
+            enabled: false
+          name: ens1f1np1
+          state: up
+          type: ethernet
+    name: cp0-bgp-interface
+    nodeSelector:
+      kubernetes.io/hostname: cp0.warden.lab.uc2.io
+  - desiredState:
+      interfaces:
+        - ipv4:
+            addresses:
+              - ip: 172.16.90.32
+                prefix-length: 24
+            dhcp: false
+            enabled: true
+          ipv6:
+            enabled: false
+          name: ens1f1np1
+          state: up
+          type: ethernet
+    name: cp1-bgp-interface
+    nodeSelector:
+      kubernetes.io/hostname: cp1.warden.lab.uc2.io
+  - desiredState:
+      interfaces:
+        - ipv4:
+            addresses:
+              - ip: 172.16.90.33
+                prefix-length: 24
+            dhcp: false
+            enabled: true
+          ipv6:
+            enabled: false
+          name: ens1f1np1
+          state: up
+          type: ethernet
+    name: cp2-bgp-interface
+    nodeSelector:
+      kubernetes.io/hostname: cp2.warden.lab.uc2.io
