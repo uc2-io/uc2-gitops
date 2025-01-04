@@ -56,6 +56,13 @@ policies:
       node-role.kubernetes.io/control-plane: ''
   - desiredState:
       interfaces:
+        - name: ens1f1np1vrf
+          state: up
+          type: vrf
+          vrf:
+            port:
+              - ens1f1np1
+            route-table-id: 2
         - ipv4:
             address:
               - ip: 172.16.90.31
@@ -67,11 +74,33 @@ policies:
           name: ens1f1np1
           state: up
           type: ethernet
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          metric: 150
+          next-hop-address: 172.16.90.254
+          next-hop-interface: ens1f1np1
+          table-id: 2
+      route-rules:
+        config:
+        - ip-to: 172.30.0.0/16
+          priority: 998
+          route-table: 254
+        - ip-to: 10.128.0.0/14
+          priority: 998
+          route-table: 254
     name: cp0-bgp-interface
     nodeSelector:
       kubernetes.io/hostname: cp0.warden.lab.uc2.io
   - desiredState:
       interfaces:
+        - name: ens1f1np1vrf
+          state: up
+          type: vrf
+          vrf:
+            port:
+              - ens1f1np1
+            route-table-id: 2
         - ipv4:
             address:
               - ip: 172.16.90.32
@@ -83,11 +112,33 @@ policies:
           name: ens1f1np1
           state: up
           type: ethernet
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          metric: 150
+          next-hop-address: 172.16.90.254
+          next-hop-interface: ens1f1np1
+          table-id: 2
+      route-rules:
+        config:
+        - ip-to: 172.30.0.0/16
+          priority: 998
+          route-table: 254
+        - ip-to: 10.128.0.0/14
+          priority: 998
+          route-table: 254
     name: cp1-bgp-interface
     nodeSelector:
       kubernetes.io/hostname: cp1.warden.lab.uc2.io
   - desiredState:
       interfaces:
+        - name: ens1f1np1vrf
+          state: up
+          type: vrf
+          vrf:
+            port:
+              - ens1f1np1
+            route-table-id: 2
         - ipv4:
             address:
               - ip: 172.16.90.33
@@ -99,6 +150,21 @@ policies:
           name: ens1f1np1
           state: up
           type: ethernet
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          metric: 150
+          next-hop-address: 172.16.90.254
+          next-hop-interface: ens1f1np1
+          table-id: 2
+      route-rules:
+        config:
+        - ip-to: 172.30.0.0/16
+          priority: 998
+          route-table: 254
+        - ip-to: 10.128.0.0/14
+          priority: 998
+          route-table: 254
     name: cp2-bgp-interface
     nodeSelector:
       kubernetes.io/hostname: cp2.warden.lab.uc2.io
