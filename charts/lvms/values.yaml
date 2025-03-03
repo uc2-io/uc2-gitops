@@ -1,7 +1,7 @@
 ---
 lvmcluster_device_force_wipe: false
 lvmcluster_device_fstype: ext4
-lvmcluster_deviceclass_default: true
+lvmcluster_deviceclass_default: false
 lvmcluster_name: local-vm-storage
 lvmcluster_namespace: openshift-storage
 lvmcluster_thinpool_chunksize: 128Ki

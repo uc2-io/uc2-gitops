@@ -26,14 +26,16 @@ spec:
         paths:
           {{- tpl (toYaml .Values.lvmcluster_device_paths) . | nindent 10 }}
       fstype: {{ .Values.lvmcluster_device_fstype }}
-      name: {{ .Values.lvmcluster_name }}-vg
+      name: {{ .Values.lvmcluster_name }}
       {{- if .Values.lvmcluster_node_selector }}
       nodeSelector:
         {{- tpl (toYaml .Values.lvmcluster_node_selector) . | nindent 8 }}
       {{- end }}
+      {{- if .Values.lvmcluster_thinpoolconfig }}
       thinPoolConfig:
         chunkSize: {{ .Values.lvmcluster_thinpool_chunksize }}
         chunkSizeCalculationPolicy: {{ .Values.lvmcluster_thinpool_chunksize_policy }}
         name: {{ .Values.lvmcluster_name }}-thin-pool
         overprovisionRatio: {{ .Values.lvmcluster_thinpool_overprovision_ratio }}
         sizePercent: {{ .Values.lvmcluster_thinpool_size_percent }}
+      {{- end }}
