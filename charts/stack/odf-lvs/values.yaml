@@ -2,11 +2,11 @@
 lvs_annotations:
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   argocd.argoproj.io/sync-wave: "2"
+lvs_devicemechanicalproperties:
+  - NonRotational
 lvs_devicetypes:
   - disk
   - part
-lvs_maxsize: 2000Gi
-lvs_minsize: 400Gi
 lvs_name: odf-localvolumeset
 lvs_namespace: openshift-local-storage
 lvs_nodeselectorterms:
