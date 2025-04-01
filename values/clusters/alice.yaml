@@ -337,7 +337,7 @@ charts:
                   key: node-role.kubernetes.io/infra
                   value: reserved
             operator:
-              channel: release-2.11
+              channel: release-2.12
               installPlanApproval: Automatic
               name: advanced-cluster-management
               source: redhat-operators

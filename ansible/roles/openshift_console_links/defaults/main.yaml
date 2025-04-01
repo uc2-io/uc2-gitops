@@ -1,2 +1,2 @@
 ---
-configmap_namespace: uc2-openshift-gitops
+configmap_namespace: openshift-gitops

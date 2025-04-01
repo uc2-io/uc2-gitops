@@ -33,7 +33,7 @@ gitops_default_placement_name: all-openshift-clusters
 gitops_enable: true
 gitops_mcs_name: global
 gitops_mcsb_name: global
-gitops_namespace: uc2-openshift-gitops
+gitops_namespace: openshift-gitops
 # List of ManagedClusterAddons for local-cluster infra node support
 managed_cluster_addons:
   - application-manager

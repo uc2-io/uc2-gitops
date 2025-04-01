@@ -1,0 +1,41 @@
+---
+apiVersion: lvm.topolvm.io/v1alpha1
+kind: LVMCluster
+metadata:
+  {{- if .Values.lvmcluster_annotations }}
+  annotations:
+    {{- tpl (toYaml .Values.lvmcluster_annotations) . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if .Values.lvmcluster_labels }}
+    {{- tpl (toYaml .Values.lvmcluster_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ .Values.lvmcluster_name }}
+  namespace: {{ .Values.lvmcluster_namespace }}
+spec:
+  {{- if .Values.lvmcluster_tolerations }}
+  tolerations:
+    {{- tpl (toYaml .Values.lvmcluster_tolerations) . | nindent 4 }}
+  {{- end }}
+  storage:
+    deviceClasses:
+    - default: {{ .Values.lvmcluster_deviceclass_default }}
+      deviceSelector:
+        forceWipeDevicesAndDestroyAllData: {{ .Values.lvmcluster_device_force_wipe }}
+        paths:
+          {{- tpl (toYaml .Values.lvmcluster_device_paths) . | nindent 10 }}
+      fstype: {{ .Values.lvmcluster_device_fstype }}
+      name: {{ .Values.lvmcluster_name }}
+      {{- if .Values.lvmcluster_node_selector }}
+      nodeSelector:
+        {{- tpl (toYaml .Values.lvmcluster_node_selector) . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.lvmcluster_thinpoolconfig }}
+      thinPoolConfig:
+        chunkSize: {{ .Values.lvmcluster_thinpool_chunksize }}
+        chunkSizeCalculationPolicy: {{ .Values.lvmcluster_thinpool_chunksize_policy }}
+        name: {{ .Values.lvmcluster_name }}-thin-pool
+        overprovisionRatio: {{ .Values.lvmcluster_thinpool_overprovision_ratio }}
+        sizePercent: {{ .Values.lvmcluster_thinpool_size_percent }}
+      {{- end }}

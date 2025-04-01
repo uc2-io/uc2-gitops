@@ -31,14 +31,15 @@ policies:
             enabled: false
           ipv6:
             enabled: false
-          name: enp8s0
+          name: ens1f0np0
           state: up
           type: ethernet
         - bridge:
+            allow-extra-patch-ports: true
             options:
               stp: true
             port:
-              - name: enp8s0
+              - name: ens1f0np0
           name: ovs-br1
           state: up
           type: ovs-bridge
@@ -52,4 +53,94 @@ policies:
             state: present
     name: ovs-br1-metal
     nodeSelector:
-      nmstate.apps.uc2.io/metal: ''
+      node-role.kubernetes.io/control-plane: ''
+  - desiredState:
+      interfaces:
+        - ethtool:
+            coalesce:
+              adaptive-rx: true
+              adaptive-tx: true
+            ring:
+              rx: 8192
+              tx: 8192
+          ipv4:
+            address:
+              - ip: 172.16.100.10
+                prefix-length: 24
+            dhcp: false
+            enabled: true
+          ipv6:
+            enabled: false
+          mtu: 9216
+          name: ens3f1np1
+          state: up
+          type: ethernet
+      routes:
+        config:
+          - destination: 172.16.100.0/24
+            metric: 150
+            next-hop-interface: ens3f1np1
+            table-id: 254
+    name: cp0-storage
+    nodeSelector:
+      kubernetes.io/hostname: cp0.warden.lab.uc2.io
+  - desiredState:
+      interfaces:
+        - ethtool:
+            coalesce:
+              adaptive-rx: true
+              adaptive-tx: true
+            ring:
+              rx: 8192
+              tx: 8192
+          ipv4:
+            address:
+              - ip: 172.16.100.11
+                prefix-length: 24
+            dhcp: false
+            enabled: true
+          ipv6:
+            enabled: false
+          mtu: 9216
+          name: ens3f1np1
+          state: up
+          type: ethernet
+      routes:
+        config:
+          - destination: 172.16.100.0/24
+            metric: 150
+            next-hop-interface: ens3f1np1
+            table-id: 254
+    name: cp1-storage
+    nodeSelector:
+      kubernetes.io/hostname: cp1.warden.lab.uc2.io
+  - desiredState:
+      interfaces:
+        - ethtool:
+            coalesce:
+              adaptive-rx: true
+              adaptive-tx: true
+            ring:
+              rx: 8192
+              tx: 8192
+          ipv4:
+            address:
+              - ip: 172.16.100.12
+                prefix-length: 24
+            dhcp: false
+            enabled: true
+          ipv6:
+            enabled: false
+          mtu: 9216
+          name: ens3f1np1
+          state: up
+          type: ethernet
+      routes:
+        config:
+          - destination: 172.16.100.0/24
+            metric: 150
+            next-hop-interface: ens3f1np1
+            table-id: 254
+    name: cp2-storage
+    nodeSelector:
+      kubernetes.io/hostname: cp2.warden.lab.uc2.io

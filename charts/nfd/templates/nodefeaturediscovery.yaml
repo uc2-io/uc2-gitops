@@ -1,0 +1,14 @@
+---
+apiVersion: nfd.openshift.io/v1
+kind: NodeFeatureDiscovery
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ .Values.nfd_name }}
+  namespace: {{ .Values.nfd_namespace }}
+spec:
+  operand:
+    image: {{ .Values.image }}
+    imagePullPolicy: {{ .Values.imagePullPolicy }}
+  workerConfig:
+    {{- tpl (toYaml .Values.workerConfig) . | nindent 4 }}

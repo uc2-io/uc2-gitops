@@ -1,3 +1,5 @@
 ---
 ansible-runner-job:
   enabled: false
+dummy_configmap_name: baseline-console-links
+dummy_configmap_namespace: ansible-runner

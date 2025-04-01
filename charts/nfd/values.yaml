@@ -1,0 +1,9 @@
+---
+image: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:latest
+imagePullPolicy: Always
+nfd_name: default
+nfd_namespace: openshift-nfd
+workerConfig:
+  configData: |
+    core:
+      sleepInterval: 60s

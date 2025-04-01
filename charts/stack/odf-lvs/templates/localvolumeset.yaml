@@ -14,10 +14,24 @@ metadata:
   namespace: openshift-local-storage
 spec:
   deviceInclusionSpec:
+    deviceMechanicalProperties:
+    {{- tpl (toYaml $.Values.lvs_devicemechanicalproperties) $ | nindent 4 }}
     deviceTypes:
     {{- tpl (toYaml $.Values.lvs_devicetypes) $ | nindent 4 }}
+    {{- if $.Values.lvs_maxsize }}
     maxSize: {{ $.Values.lvs_maxsize }}
+    {{- end }}
+    {{- if $.Values.lvs_minsize }}
     minSize: {{ $.Values.lvs_minsize }}
+    {{- end }}
+    {{- if $.Values.lvs_device_models }}
+    models:
+      {{- tpl (toYaml $.Values.lvs_device_models) $ | nindent 4 }}
+    {{- end }}
+    {{- if $.Values.lvs_device_vendors }}
+    vendors:
+      {{- tpl (toYaml $.Values.lvs_device_vendors) $ | nindent 4 }}
+    {{- end }}
   nodeSelector:
     nodeSelectorTerms:
     {{- tpl (toYaml $.Values.lvs_nodeselectorterms) $ | nindent 4 }}

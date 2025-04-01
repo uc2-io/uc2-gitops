@@ -1,0 +1,10 @@
+---
+lvmcluster_device_force_wipe: false
+lvmcluster_device_fstype: ext4
+lvmcluster_deviceclass_default: false
+lvmcluster_name: local-vm-storage
+lvmcluster_namespace: openshift-storage
+lvmcluster_thinpool_chunksize: 128Ki
+lvmcluster_thinpool_chunksize_policy: Static
+lvmcluster_thinpool_overprovision_ratio: 10
+lvmcluster_thinpool_size_percent: 90

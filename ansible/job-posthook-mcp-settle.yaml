@@ -1,0 +1,38 @@
+- name: Wait for MachineConfigPool to Settle
+  become: false
+  gather_facts: false
+  hosts: localhost
+  tasks:
+    - name: Assert Extra Vars
+      ansible.builtin.assert:
+        that:
+          - mcp_selector is defined
+
+    - name: Query MachineConfigPool
+      kubernetes.core.k8s_info:
+        api_version: machineconfiguration.openshift.io/v1
+        kind: MachineConfigPool
+        label_selectors:
+          - "{{ mcp_selector }}"
+      register: mcp_query_results
+
+    - name: Assert MachineConfigPool Found
+      ansible.builtin.assert:
+        that:
+          - mcp_query_results.resources | count == 1
+
+    - name: Wait for MachineConfigPool to Settle
+      kubernetes.core.k8s_info:
+        api_version: machineconfiguration.openshift.io/v1
+        kind: MachineConfigPool
+        name: "{{ mcp_query_results.resources[0].metadata.name }}"
+      delay: 10
+      retries: 60
+      register: mcp_results
+      until:
+        - mcp_results.resources | count == 1
+        - mcp_results.resources[0].status is defined
+        - mcp_results.resources[0].status.conditions is defined
+        - (mcp_results.resources[0].status.conditions | json_query(_query) | first).status == "False"
+      vars:
+        _query: "[?type=='Updating']"
